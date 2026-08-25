@@ -97,13 +97,15 @@ export function Sidebar({ className, username = "creator", profilePic, onLogout,
         </Link>
 
         <a
-          href="https://t.me/instagramautomationp8"
+          href={`https://wa.me/919118016507?text=${encodeURIComponent(
+            `Hi ShinePro Support, I need help with my account (Instagram: @${username || "creator"})`
+          )}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-[13px] text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-[13px] text-sidebar-foreground/70 hover:text-emerald-500 hover:bg-emerald-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
         >
-          <Send className="w-4 h-4 shrink-0" strokeWidth={1.8} />
-          <span>Get help</span>
+          <MessageCircle className="w-4 h-4 shrink-0 text-emerald-500" strokeWidth={2} />
+          <span>Get help (WhatsApp)</span>
         </a>
       </nav>
 
