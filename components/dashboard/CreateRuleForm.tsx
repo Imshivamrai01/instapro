@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import {
   Plus, Trash2, Film, Check, MessageCircle, Send, AtSign, Heart,
   MessageSquare, Image as ImageIcon, Timer, Eye, Megaphone, Lock,
   Link2, Zap, ChevronDown, ChevronRight, ChevronLeft, X, Loader2,
   ArrowLeft, Phone, Video, Info, Sparkles, Smile, Camera, Mic, Image as PicIcon,
-  Globe
+  Globe, RefreshCw
 } from "lucide-react"
 import { TagInput } from "@/components/ui/tag-input"
 import type { ProButton, QuickReplyOption, Automation } from "@/lib/types"
@@ -39,6 +39,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
   /* ---------- WHEN ---------- */
   const [triggers, setTriggers] = useState<string[]>([])
   const [storyTriggerType, setStoryTriggerType] = useState<"mention" | "reaction" | "reply">("mention")
+  const [postTargetMode, setPostTargetMode] = useState<"specific" | "global">("specific")
   const [selectedReel, setSelectedReel] = useState<any | null>(null)
   const [hasSelectedReelOption, setHasSelectedReelOption] = useState<boolean>(false)
 
@@ -70,21 +71,22 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
   const [reels, setReels] = useState<any[]>([])
   const [loadingReels, setLoadingReels] = useState(false)
 
-  useEffect(() => {
+  const fetchReels = useCallback(() => {
     if (!userId) return
-    let cancelled = false
     setLoadingReels(true)
     fetch(`/api/instagram/media?userId=${userId}`)
       .then((r) => r.json())
       .then((j) => {
-        if (cancelled) return
         const list = j.data && Array.isArray(j.data) ? j.data : Array.isArray(j) ? j : []
         setReels(list)
       })
       .catch(() => {})
-      .finally(() => !cancelled && setLoadingReels(false))
-    return () => { cancelled = true }
+      .finally(() => setLoadingReels(false))
   }, [userId])
+
+  useEffect(() => {
+    fetchReels()
+  }, [fetchReels])
 
   /* Prefill on edit */
   useEffect(() => {
@@ -124,8 +126,10 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
     if (editRule.specific_media_id) {
       setSelectedReel({ id: editRule.specific_media_id, caption: "Selected post" })
       setHasSelectedReelOption(true)
+      setPostTargetMode("specific")
     } else {
-      setHasSelectedReelOption(false)
+      setHasSelectedReelOption(true)
+      setPostTargetMode("global")
     }
   }, [editRule])
 
@@ -352,86 +356,148 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
               )}
 
               {triggerSource === "comment" && (
-                <div className="space-y-4">
-                  <FieldLabel>Automate which post or reel?</FieldLabel>
-                  {loadingReels ? (
-                    <div className="p-8 flex flex-col items-center justify-center gap-3 border border-border rounded-2xl bg-white/[0.01]">
-                      <Loader2 className="w-6 h-6 animate-spin text-accent-yellow-foreground" />
-                      <span className="text-xs text-muted-foreground font-mono-ui">Fetching Instagram feed...</span>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3 max-h-[55vh] sm:max-h-[420px] overflow-y-auto pr-1 pb-1">
-                      {/* Option: Global Post Rule */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedReel(null)
-                          setHasSelectedReelOption(true)
-                        }}
-                        className={`aspect-square rounded-xl border flex flex-col items-center justify-center p-2 sm:p-4 text-center transition-all duration-200 ${
-                                                  hasSelectedReelOption && selectedReel === null
-                                                    ? "border-accent-yellow ring-2 ring-accent-yellow/30 bg-accent-yellow/10"
-                                                    : "border-border bg-card hover:border-foreground/30 hover:bg-accent"
-                                                }`}
-                                              >
-                                                <Globe className="w-6 h-6 mb-2 text-accent-blue" />
-                                                <span className="text-xs font-bold text-foreground">All Posts & Reels</span>
-                                                <span className="text-[10px] text-muted-foreground mt-1 font-mono-ui">Global Trigger</span>
-                                              </button>
+                <div className="space-y-5">
+                  <FieldLabel>Where should this comment automation run?</FieldLabel>
 
-                      {reels.map((reel) => {
-                        const isSelected = hasSelectedReelOption && selectedReel?.id === reel.id
-                        return (
-                          <button
-                            key={reel.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedReel(reel)
-                              setHasSelectedReelOption(true)
-                            }}
-                            className={`aspect-square rounded-xl border overflow-hidden relative group text-left transition-all duration-200 bg-neutral-900 ${
-                                                        isSelected
-                                                          ? "border-accent-yellow ring-2 ring-accent-yellow/30"
-                                                          : "border-border hover:border-foreground/40"
-                                                      }`}
-                                                    >
-                                                      {reel.image_url ? (
-                                                        <img
-                                                          src={reel.image_url}
-                                                          alt=""
-                                                          loading="lazy"
-                                                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                                                        />
-                                                      ) : (
-                                                        <div className="w-full h-full bg-neutral-900 flex items-center justify-center">
-                                                          <Film className="w-6 h-6 text-neutral-500" />
-                                                        </div>
-                                                      )}
+                  {/* Mode Selector */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPostTargetMode("specific")
+                        if (!selectedReel) setHasSelectedReelOption(false)
+                      }}
+                      className={`p-4 rounded-2xl border text-left flex items-start gap-3.5 transition-all ${
+                        postTargetMode === "specific"
+                          ? "border-amber-500 bg-amber-500/10 ring-2 ring-amber-500/30"
+                          : "border-border bg-card hover:bg-muted/30"
+                      }`}
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
+                        <Film className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-foreground">Specific Reel or Post</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">Select a specific Reel from your Instagram feed</p>
+                      </div>
+                    </button>
 
-                                                      {/* Subtle dark gradient so caption + type pill stay readable in BOTH themes */}
-                                                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPostTargetMode("global")
+                        setSelectedReel(null)
+                        setHasSelectedReelOption(true)
+                      }}
+                      className={`p-4 rounded-2xl border text-left flex items-start gap-3.5 transition-all ${
+                        postTargetMode === "global"
+                          ? "border-amber-500 bg-amber-500/10 ring-2 ring-amber-500/30"
+                          : "border-border bg-card hover:bg-muted/30"
+                      }`}
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0 mt-0.5">
+                        <Globe className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-foreground">All Posts & Reels (Global)</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">Automate comments across your entire profile</p>
+                      </div>
+                    </button>
+                  </div>
 
-                                                      {/* Type Overlay */}
-                                                      <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/70 text-[9px] font-mono-ui text-white uppercase tracking-wider border border-white/10">
-                                                        {reel.media_type === "STORY" ? "Story" : reel.media_type === "VIDEO" ? "Reel" : "Post"}
-                                                      </span>
+                  {/* If Specific Mode: Display Feed Grid */}
+                  {postTargetMode === "specific" && (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold text-foreground flex items-center gap-2">
+                          <span>Choose from your Reels ({reels.length} found):</span>
+                          {selectedReel && (
+                            <span className="text-[10px] font-mono-ui font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                              ✓ Reel Selected
+                            </span>
+                          )}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={fetchReels}
+                          className="flex items-center gap-1 text-[11px] font-mono-ui text-amber-600 dark:text-amber-400 hover:underline"
+                        >
+                          <RefreshCw className={`w-3.5 h-3.5 ${loadingReels ? "animate-spin" : ""}`} /> Refresh Feed
+                        </button>
+                      </div>
 
-                                                      {/* Selected Check overlay */}
-                                                      {isSelected && (
-                                                        <div className="absolute inset-0 bg-accent-yellow/20 flex items-center justify-center backdrop-blur-[1px]">
-                                                          <div className="w-9 h-9 rounded-full bg-accent-yellow text-accent-yellow-foreground flex items-center justify-center shadow-lg ring-2 ring-accent-yellow-foreground">
-                                                            <Check className="w-4 h-4 stroke-[3]" />
-                                                          </div>
-                                                        </div>
-                                                      )}
+                      {loadingReels ? (
+                        <div className="p-8 flex flex-col items-center justify-center gap-3 border border-border rounded-2xl bg-card">
+                          <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
+                          <span className="text-xs text-muted-foreground font-mono-ui">Loading your Instagram reels & posts...</span>
+                        </div>
+                      ) : reels.length === 0 ? (
+                        <div className="p-8 text-center border border-dashed border-border rounded-2xl bg-card space-y-2">
+                          <Film className="w-8 h-8 text-muted-foreground mx-auto" />
+                          <p className="text-xs font-semibold text-foreground">No Reels Found on Connected Account</p>
+                          <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">
+                            Ensure you have published posts on your Instagram profile or use the Global option above.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[420px] overflow-y-auto pr-1 pb-1">
+                          {reels.map((reel) => {
+                            const isSelected = selectedReel?.id === reel.id
+                            return (
+                              <button
+                                key={reel.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedReel(reel)
+                                  setHasSelectedReelOption(true)
+                                }}
+                                className={`aspect-square rounded-2xl border overflow-hidden relative group text-left transition-all duration-200 bg-neutral-950 ${
+                                  isSelected
+                                    ? "border-amber-500 ring-4 ring-amber-500/30 scale-[0.98]"
+                                    : "border-border hover:border-amber-500/50 hover:scale-[1.01]"
+                                }`}
+                              >
+                                {reel.image_url ? (
+                                  <img
+                                    src={reel.image_url}
+                                    alt=""
+                                    loading="lazy"
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-neutral-900 flex items-center justify-center">
+                                    <Film className="w-6 h-6 text-neutral-500" />
+                                  </div>
+                                )}
 
-                                                      {/* Caption snippet at bottom — white text on dark gradient for contrast in BOTH themes */}
-                                                      <div className="absolute inset-x-0 bottom-0 px-2 pt-6 pb-2 pointer-events-none">
-                                                        <p className="text-[10px] text-white line-clamp-1 font-sans drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">{reel.caption || "Untitled"}</p>
-                                                      </div>
-                                                    </button>
-                        )
-                      })}
+                                {/* Gradient Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+
+                                {/* Media Type Badge */}
+                                <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/80 text-[9px] font-mono-ui text-white font-bold uppercase tracking-wider border border-white/20">
+                                  {reel.media_type === "VIDEO" ? "🎬 Reel" : reel.media_type === "STORY" ? "Story" : "📸 Post"}
+                                </span>
+
+                                {/* Selected Indicator */}
+                                {isSelected && (
+                                  <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center backdrop-blur-[1px]">
+                                    <div className="w-10 h-10 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg font-bold">
+                                      <Check className="w-5 h-5 stroke-[3]" />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Caption */}
+                                <div className="absolute inset-x-0 bottom-0 px-2.5 pb-2 pointer-events-none">
+                                  <p className="text-[10px] text-white font-medium line-clamp-2 leading-tight">
+                                    {reel.caption || "Untitled Post"}
+                                  </p>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
