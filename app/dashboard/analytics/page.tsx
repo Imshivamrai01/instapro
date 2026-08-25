@@ -18,18 +18,24 @@ export default function ReportsPage() {
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "all">("all")
 
   const fetchReports = async (showToast = false) => {
-    if (!userId) return
+    if (!userId) {
+      setLoading(false)
+      return
+    }
     try {
       if (showToast) setRefreshing(true)
       const res = await fetch(`/api/dashboard/reports?userId=${userId}`)
+      if (!res.ok) {
+        throw new Error("Failed response from server")
+      }
       const json = await res.json()
-      if (json.success) {
+      if (json && json.metrics) {
         setData(json)
         if (showToast) toast.success("Reports data updated!")
       }
     } catch (e) {
       console.error("Error fetching reports", e)
-      if (showToast) toast.error("Failed to load reports")
+      if (showToast) toast.error("Could not refresh reports data")
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -43,6 +49,22 @@ export default function ReportsPage() {
       setLoading(false)
     }
   }, [userId, sessionLoading])
+
+  const safeFormatTime = (dateStr: any) => {
+    try {
+      if (!dateStr) return "Just now"
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return "Recently"
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    } catch {
+      return "Recently"
+    }
+  }
+
+  const safeNumber = (val: any) => {
+    const n = Number(val)
+    return isNaN(n) ? "0" : n.toLocaleString()
+  }
 
   if (sessionLoading || loading) {
     return (
@@ -62,8 +84,8 @@ export default function ReportsPage() {
     audienceEngaged: 0,
   }
 
-  const topMedia = data?.topMedia || []
-  const recentActivity = data?.recentActivity || []
+  const topMedia = Array.isArray(data?.topMedia) ? data.topMedia : []
+  const recentActivity = Array.isArray(data?.recentActivity) ? data.recentActivity : []
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
@@ -123,7 +145,7 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {Number(metrics.totalRepliesSent).toLocaleString()}
+              {safeNumber(metrics.totalRepliesSent)}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
               <TrendingUp className="w-3 h-3" />
@@ -142,7 +164,7 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {Number(metrics.totalFollowsGained).toLocaleString()}
+              {safeNumber(metrics.totalFollowsGained)}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">
               <Sparkles className="w-3 h-3 text-amber-500" />
@@ -161,7 +183,7 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {Number(metrics.totalViews).toLocaleString()}
+              {safeNumber(metrics.totalViews)}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-purple-600 dark:text-purple-400 font-semibold mt-1">
               <ArrowUpRight className="w-3 h-3" />
@@ -180,7 +202,7 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {Number(metrics.audienceEngaged).toLocaleString()}
+              {safeNumber(metrics.audienceEngaged)}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-semibold mt-1">
               <CheckCircle2 className="w-3 h-3" />
@@ -249,11 +271,11 @@ export default function ReportsPage() {
           <div className="p-4 rounded-2xl bg-card border border-border space-y-2 text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total Likes Logged:</span>
-              <span className="font-bold text-foreground">{Number(metrics.totalLikes).toLocaleString()}</span>
+              <span className="font-bold text-foreground">{safeNumber(metrics.totalLikes)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total Comments Logged:</span>
-              <span className="font-bold text-foreground">{Number(metrics.totalComments).toLocaleString()}</span>
+              <span className="font-bold text-foreground">{safeNumber(metrics.totalComments)}</span>
             </div>
           </div>
         </div>
@@ -276,23 +298,23 @@ export default function ReportsPage() {
                 <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0 border border-border relative">
                   {post.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={post.image_url} alt={post.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <img src={post.image_url} alt={post.caption || "Media"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">No Preview</div>
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-xs font-semibold text-foreground truncate">{post.caption}</p>
+                  <p className="text-xs font-semibold text-foreground truncate">{post.caption || "Instagram Post"}</p>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1 text-purple-500 font-semibold">
-                      <Eye className="w-3 h-3" /> {Number(post.views).toLocaleString()}
+                      <Eye className="w-3 h-3" /> {safeNumber(post.views)}
                     </span>
                     <span className="flex items-center gap-1 text-rose-500 font-medium">
-                      <Heart className="w-3 h-3" /> {post.likes}
+                      <Heart className="w-3 h-3" /> {safeNumber(post.likes)}
                     </span>
                     <span className="flex items-center gap-1 text-blue-500 font-medium">
-                      <MessageCircle className="w-3 h-3" /> {post.comments}
+                      <MessageCircle className="w-3 h-3" /> {safeNumber(post.comments)}
                     </span>
                   </div>
                 </div>
@@ -337,13 +359,13 @@ export default function ReportsPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground truncate">
-                      To: @{msg.recipient?.recipient_username || "Instagram User"}
+                      To: @{msg.recipient_username || "follower"}
                     </p>
-                    <p className="text-muted-foreground text-[11px] truncate max-w-md">{msg.content}</p>
+                    <p className="text-muted-foreground text-[11px] truncate max-w-md">{msg.content || "[Automated Message]"}</p>
                   </div>
                 </div>
                 <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
-                  {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {safeFormatTime(msg.created_at)}
                 </span>
               </div>
             ))
