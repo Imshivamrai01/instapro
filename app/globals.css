@@ -5,123 +5,119 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   Light theme (default). WCAG AA targets ≥4.5:1 for body text.
-   Palette: warm cream surface + obsidian ink + crimson accent + yellow.
+   SP Shine Pro Design System
+   Brand Palette: Deep Midnight Navy + Metallic Luxury Gold + Crisp High Contrast
    ============================================================ */
 :root {
-  --background: oklch(0.985 0.005 90);          /* #faf8f5 warm cream */
-  --foreground: oklch(0.18 0.01 280);           /* #1a1a24 obsidian ink */
+  --background: oklch(0.985 0.005 240);          /* Crisp pearl clean white */
+  --foreground: oklch(0.15 0.04 260);           /* Deep Obsidian Navy #0b132b */
 
-  --card: oklch(1 0 0);                          /* pure white cards */
-  --card-foreground: oklch(0.18 0.01 280);
+  --card: oklch(1 0 0);                          /* Pure white cards */
+  --card-foreground: oklch(0.15 0.04 260);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 280);
+  --popover-foreground: oklch(0.15 0.04 260);
 
-  --primary: oklch(0.18 0.01 280);                /* obsidian buttons */
-  --primary-foreground: oklch(0.985 0.005 90);
+  --primary: oklch(0.16 0.04 260);              /* Deep Navy Buttons */
+  --primary-foreground: oklch(0.99 0.01 85);
 
-  --secondary: oklch(0.94 0.01 90);               /* soft cream chips */
-  --secondary-foreground: oklch(0.25 0.01 280);
+  --secondary: oklch(0.94 0.01 240);            /* Soft Slate Chips */
+  --secondary-foreground: oklch(0.2 0.04 260);
 
-  --muted: oklch(0.95 0.008 90);
-  --muted-foreground: oklch(0.45 0.01 280);      /* 5.2:1 on background */
+  --muted: oklch(0.95 0.01 240);
+  --muted-foreground: oklch(0.42 0.02 260);     /* High contrast readability */
 
-  --accent: oklch(0.93 0.01 90);
-  --accent-foreground: oklch(0.18 0.01 280);
+  --accent: oklch(0.94 0.02 85);
+  --accent-foreground: oklch(0.15 0.04 260);
 
-  --destructive: oklch(0.52 0.22 27);             /* crimson — 4.6:1 on bg */
-  --destructive-foreground: oklch(0.985 0.005 90);
+  --destructive: oklch(0.55 0.22 25);            /* Crimson alert */
+  --destructive-foreground: oklch(0.99 0 0);
 
-  --success: oklch(0.55 0.16 145);                /* green for active toggles */
-  --success-foreground: oklch(0.985 0.005 90);
+  --success: oklch(0.58 0.17 145);               /* Emerald active status */
+  --success-foreground: oklch(0.99 0 0);
 
-  --warning: oklch(0.78 0.16 88);                 /* amber */
-  --warning-foreground: oklch(0.18 0.01 280);
+  --warning: oklch(0.75 0.18 80);                /* Amber gold */
+  --warning-foreground: oklch(0.15 0.04 260);
 
-  --border: oklch(0.88 0.01 90);                  /* visible hairline */
-  --input: oklch(0.88 0.01 90);
-  --ring: oklch(0.55 0.18 88);                    /* yellow focus ring */
+  --border: oklch(0.89 0.01 240);                /* Clean hairline border */
+  --input: oklch(0.89 0.01 240);
+  --ring: oklch(0.72 0.18 80);                   /* Luxury Gold ring */
 
-  /* Brand accents — tuned for legibility, not just punch.
-     accent-yellow drops chroma from 0.18 to 0.12 (less neon) and
-     lightness from 0.82 to 0.72 so it's a warm amber that doesn't
-     burn the eye on small text / badges in light mode. Dark mode
-     keeps the punchier values since the eye expects more saturation
-     against a dark surface. */
-    --accent-yellow: oklch(0.72 0.12 88);           /* soft amber — readable on cream */
-    --accent-yellow-foreground: oklch(0.18 0.01 280);
-    --accent-yellow-soft: oklch(0.94 0.06 88);       /* for tinted backgrounds */
-    --accent-blue: oklch(0.55 0.18 255);            /* 4.6:1 on bg */
-    --accent-blue-foreground: oklch(0.985 0.005 90);
-    --accent-pink: oklch(0.55 0.22 0);              /* 4.6:1 on bg */
-    --accent-pink-foreground: oklch(0.985 0.005 90);
+  /* Shine Pro Signature Gold Accents */
+  --accent-yellow: oklch(0.74 0.18 80);          /* Rich Royal Gold */
+  --accent-yellow-foreground: oklch(0.12 0.04 260);
+  --accent-yellow-soft: oklch(0.95 0.05 85);     /* Golden glow tint */
+  --accent-blue: oklch(0.55 0.19 255);           /* Vibrant Navy Blue */
+  --accent-blue-foreground: oklch(0.99 0 0);
+  --accent-pink: oklch(0.58 0.22 350);
+  --accent-pink-foreground: oklch(0.99 0 0);
 
-  --radius: 0.5rem;
+  --radius: 0.625rem;
 
-  --sidebar: oklch(0.97 0.006 90);
-  --sidebar-foreground: oklch(0.25 0.01 280);
-  --sidebar-primary: oklch(0.18 0.01 280);
-  --sidebar-primary-foreground: oklch(0.985 0.005 90);
-  --sidebar-accent: oklch(0.93 0.01 90);
-  --sidebar-accent-foreground: oklch(0.18 0.01 280);
-  --sidebar-border: oklch(0.88 0.01 90);
-  --sidebar-ring: oklch(0.55 0.18 88);
+  --sidebar: oklch(0.975 0.008 240);
+  --sidebar-foreground: oklch(0.2 0.04 260);
+  --sidebar-primary: oklch(0.16 0.04 260);
+  --sidebar-primary-foreground: oklch(0.99 0.01 85);
+  --sidebar-accent: oklch(0.93 0.015 85);
+  --sidebar-accent-foreground: oklch(0.15 0.04 260);
+  --sidebar-border: oklch(0.89 0.01 240);
+  --sidebar-ring: oklch(0.72 0.18 80);
 }
 
 /* ============================================================
-   Dark theme. Same tokens, inverted lightness, contrast preserved.
+   Dark theme: Deep Midnight Navy (#070b19) & Royal Gold
    ============================================================ */
 .dark {
-  --background: oklch(0.13 0.005 280);            /* near-black, slight cool */
-  --foreground: oklch(0.97 0.005 90);            /* warm white */
+  --background: oklch(0.11 0.03 260);           /* Deep Midnight Navy #070d1e */
+  --foreground: oklch(0.98 0.01 90);            /* Crisp Diamond White */
 
-  --card: oklch(0.17 0.006 280);
-  --card-foreground: oklch(0.97 0.005 90);
+  --card: oklch(0.15 0.035 260);                /* Luxury Dark Navy Card #0d172e */
+  --card-foreground: oklch(0.98 0.01 90);
 
-  --popover: oklch(0.17 0.006 280);
-  --popover-foreground: oklch(0.97 0.005 90);
+  --popover: oklch(0.16 0.035 260);
+  --popover-foreground: oklch(0.98 0.01 90);
 
-  --primary: oklch(0.97 0.005 90);
-  --primary-foreground: oklch(0.13 0.005 280);
+  --primary: oklch(0.78 0.18 80);               /* Metallic Gold Action Button */
+  --primary-foreground: oklch(0.1 0.04 260);    /* Deep Navy text on gold */
 
-  --secondary: oklch(0.24 0.006 280);
-  --secondary-foreground: oklch(0.97 0.005 90);
+  --secondary: oklch(0.22 0.03 260);
+  --secondary-foreground: oklch(0.96 0.01 90);
 
-  --muted: oklch(0.21 0.006 280);
-  --muted-foreground: oklch(0.72 0.01 280);       /* ≥4.5:1 on background */
+  --muted: oklch(0.18 0.03 260);
+  --muted-foreground: oklch(0.72 0.015 250);    /* High legibility slate text */
 
-  --accent: oklch(0.24 0.006 280);
-  --accent-foreground: oklch(0.97 0.005 90);
+  --accent: oklch(0.22 0.035 260);
+  --accent-foreground: oklch(0.98 0.01 90);
 
-  --destructive: oklch(0.62 0.22 27);             /* brighter on dark */
-  --destructive-foreground: oklch(0.97 0.005 90);
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
 
-  --success: oklch(0.7 0.16 145);
-  --success-foreground: oklch(0.13 0.005 280);
+  --success: oklch(0.72 0.17 145);
+  --success-foreground: oklch(0.1 0.04 260);
 
-  --warning: oklch(0.82 0.16 88);
-  --warning-foreground: oklch(0.13 0.005 280);
+  --warning: oklch(0.82 0.18 80);
+  --warning-foreground: oklch(0.1 0.04 260);
 
-  --border: oklch(0.28 0.006 280);
-  --input: oklch(0.28 0.006 280);
-  --ring: oklch(0.82 0.18 95);
+  --border: oklch(0.24 0.03 260);               /* Subtle Navy Border */
+  --input: oklch(0.24 0.03 260);
+  --ring: oklch(0.78 0.18 80);
 
-  --accent-yellow: oklch(0.85 0.18 95);              /* punchy yellow for dark — eye expects saturation here */
-    --accent-yellow-foreground: oklch(0.13 0.005 280);
-    --accent-blue: oklch(0.7 0.17 255);              /* ≥4.5:1 on dark bg */
-    --accent-blue-foreground: oklch(0.13 0.005 280);
-    --accent-pink: oklch(0.72 0.2 0);
-    --accent-pink-foreground: oklch(0.13 0.005 280);
+  --accent-yellow: oklch(0.82 0.18 80);         /* Bright Radiant Gold */
+  --accent-yellow-foreground: oklch(0.1 0.04 260);
+  --accent-yellow-soft: oklch(0.2 0.05 80);
+  --accent-blue: oklch(0.68 0.18 255);
+  --accent-blue-foreground: oklch(0.1 0.04 260);
+  --accent-pink: oklch(0.74 0.2 350);
+  --accent-pink-foreground: oklch(0.1 0.04 260);
 
-  --sidebar: oklch(0.13 0.005 280);
-  --sidebar-foreground: oklch(0.85 0.005 90);
-  --sidebar-primary: oklch(0.97 0.005 90);
-  --sidebar-primary-foreground: oklch(0.13 0.005 280);
-  --sidebar-accent: oklch(0.21 0.006 280);
-  --sidebar-accent-foreground: oklch(0.97 0.005 90);
-  --sidebar-border: oklch(0.24 0.006 280);
-  --sidebar-ring: oklch(0.85 0.18 95);
+  --sidebar: oklch(0.12 0.035 260);             /* Dark Navy Sidebar */
+  --sidebar-foreground: oklch(0.88 0.01 90);
+  --sidebar-primary: oklch(0.78 0.18 80);
+  --sidebar-primary-foreground: oklch(0.1 0.04 260);
+  --sidebar-accent: oklch(0.19 0.035 260);
+  --sidebar-accent-foreground: oklch(0.98 0.01 90);
+  --sidebar-border: oklch(0.22 0.03 260);
+  --sidebar-ring: oklch(0.78 0.18 80);
 }
 
 @theme inline {
@@ -163,15 +159,14 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Brand accents — exposed as Tailwind colors so we can use bg-accent-yellow etc. */
-    --color-accent-yellow: var(--accent-yellow);
-    --color-accent-yellow-foreground: var(--accent-yellow-foreground);
-    --color-accent-yellow-soft: var(--accent-yellow-soft);
-    --color-accent-blue: var(--accent-blue);
-    --color-accent-blue-foreground: var(--accent-blue-foreground);
-    --color-accent-pink: var(--accent-pink);
-    --color-accent-pink-foreground: var(--accent-pink-foreground);
-  }
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-yellow-foreground: var(--accent-yellow-foreground);
+  --color-accent-yellow-soft: var(--accent-yellow-soft);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-foreground: var(--accent-blue-foreground);
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-pink-foreground: var(--accent-pink-foreground);
+}
 
 @layer base {
   * {

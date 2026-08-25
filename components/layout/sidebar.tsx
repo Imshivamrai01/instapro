@@ -18,6 +18,8 @@ const NAV = [
   { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics" },
 ]
 
+import Image from "next/image"
+
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   username?: string
   profilePic?: string | null
@@ -32,15 +34,23 @@ export function Sidebar({ className, username = "creator", profilePic, onLogout,
   return (
     <aside className={cn("flex flex-col bg-sidebar text-sidebar-foreground", className)} {...props}>
       {/* Brand + Theme Toggle */}
-            <div className="px-5 pt-6 pb-5 flex items-center gap-2.5">
-              <div className="w-7 h-7 bg-accent-yellow text-accent-yellow-foreground rounded-md flex items-center justify-center shrink-0">
-                <Zap className="w-3.5 h-3.5" strokeWidth={2.5} />
-              </div>
-              <span className="font-mono-ui text-sm font-bold tracking-tight text-sidebar-foreground flex-1">insta-p8</span>
-              <ThemeToggle />
-            </div>
+      <div className="px-5 pt-5 pb-4 flex items-center justify-between gap-3">
+        <Link href="/dashboard" onClick={onNavigate} className="flex items-center gap-2.5 group">
+          <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-amber-500/30 bg-background/80 shadow-sm flex items-center justify-center p-0.5">
+            <Image src="/logo.png" alt="Shine Pro" width={32} height={32} className="object-contain" priority />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold tracking-tight text-sidebar-foreground flex items-center gap-1.5">
+              <span>Shine</span>
+              <span className="text-amber-500 dark:text-amber-400 font-extrabold">Pro</span>
+            </span>
+            <span className="text-[9px] font-mono-ui uppercase tracking-wider text-muted-foreground">Automation</span>
+          </div>
+        </Link>
+        <ThemeToggle />
+      </div>
 
-            <div className="mx-5 h-px bg-sidebar-border" />
+      <div className="mx-5 h-px bg-sidebar-border" />
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
