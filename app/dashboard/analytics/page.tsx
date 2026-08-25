@@ -5,7 +5,7 @@ import { useInstagramSession } from "@/hooks/use-instagram-session"
 import {
   BarChart3, MessageSquare, UserPlus, Eye, Users, Heart,
   MessageCircle, ExternalLink, RefreshCw, Loader2, ArrowUpRight,
-  TrendingUp, CheckCircle2, Zap
+  TrendingUp, CheckCircle2, Zap, Sparkles
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
