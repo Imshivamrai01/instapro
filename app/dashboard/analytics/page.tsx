@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useInstagramSession } from "@/lib/session"
+import { useInstagramSession } from "@/hooks/use-instagram-session"
 import {
   Activity,
   ArrowUpRight,

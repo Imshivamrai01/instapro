@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useInstagramSession } from "@/lib/session"
+import { useInstagramSession } from "@/hooks/use-instagram-session"
 import {
   Bot,
   CheckCircle2,
@@ -22,7 +22,7 @@ import {
 import { Card } from "@/components/ui/card"
 
 export default function SettingsPage() {
-  const { username, userId, isLoading: isSessionLoading, login } = useInstagramSession()
+  const { username, userId, isLoading: isSessionLoading } = useInstagramSession()
   const [activeTab, setActiveTab] = useState<"account" | "ai" | "webhook" | "support">("account")
   
   // AI Settings State
@@ -186,7 +186,9 @@ export default function SettingsPage() {
                 <p className="text-[11px] text-muted-foreground">Re-authorize with Meta if you updated password or page access.</p>
               </div>
               <button
-                onClick={login}
+                onClick={() => {
+                  window.location.href = "/api/instagram/auth"
+                }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border text-xs font-semibold text-foreground hover:bg-muted transition-all shadow-sm"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-amber-500" />
