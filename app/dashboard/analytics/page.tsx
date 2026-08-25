@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
 export default function ReportsPage() {
-  const { userId, isLoading: sessionLoading } = useInstagramSession()
+  const { userId, username, isLoading: sessionLoading } = useInstagramSession()
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -25,13 +25,12 @@ export default function ReportsPage() {
     try {
       if (showToast) setRefreshing(true)
       const res = await fetch(`/api/dashboard/reports?userId=${userId}`)
-      if (!res.ok) {
-        throw new Error("Failed response from server")
-      }
-      const json = await res.json()
-      if (json && json.metrics) {
-        setData(json)
-        if (showToast) toast.success("Reports data updated!")
+      if (res.ok) {
+        const json = await res.json()
+        if (json && json.metrics) {
+          setData(json)
+          if (showToast) toast.success("Reports data updated!")
+        }
       }
     } catch (e) {
       console.error("Error fetching reports", e)
@@ -49,22 +48,6 @@ export default function ReportsPage() {
       setLoading(false)
     }
   }, [userId, sessionLoading])
-
-  const safeFormatTime = (dateStr: any) => {
-    try {
-      if (!dateStr) return "Just now"
-      const d = new Date(dateStr)
-      if (isNaN(d.getTime())) return "Recently"
-      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    } catch {
-      return "Recently"
-    }
-  }
-
-  const safeNumber = (val: any) => {
-    const n = Number(val)
-    return isNaN(n) ? "0" : n.toLocaleString()
-  }
 
   if (sessionLoading || loading) {
     return (
@@ -93,13 +76,13 @@ export default function ReportsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-serif-display text-3xl md:text-4xl text-foreground">Analytics & Reports</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Analytics & Reports</h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               Live Stats
             </span>
           </div>
           <p className="text-muted-foreground text-xs md:text-sm mt-1">
-            Real-time tracking of automated replies delivered, follower growth, and reel views.
+            Real-time tracking of automated replies delivered, follower growth, and reel views for @{username || "creator"}.
           </p>
         </div>
 
@@ -145,11 +128,11 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {safeNumber(metrics.totalRepliesSent)}
+              {Number(metrics.totalRepliesSent || 0).toLocaleString()}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
               <TrendingUp className="w-3 h-3" />
-              <span>100% Delivery Success</span>
+              <span>100% Delivery Rate</span>
             </div>
           </div>
         </div>
@@ -164,11 +147,11 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {safeNumber(metrics.totalFollowsGained)}
+              {Number(metrics.totalFollowsGained || 0).toLocaleString()}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">
               <Sparkles className="w-3 h-3 text-amber-500" />
-              <span>Via Follow-Gate Funnels</span>
+              <span>Via Follower Gates</span>
             </div>
           </div>
         </div>
@@ -183,11 +166,11 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {safeNumber(metrics.totalViews)}
+              {Number(metrics.totalViews || 0).toLocaleString()}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-purple-600 dark:text-purple-400 font-semibold mt-1">
               <ArrowUpRight className="w-3 h-3" />
-              <span>Reels & Media Impressions</span>
+              <span>Reels & Impressions</span>
             </div>
           </div>
         </div>
@@ -202,11 +185,11 @@ export default function ReportsPage() {
           </div>
           <div>
             <p className="text-3xl font-extrabold text-foreground tracking-tight">
-              {safeNumber(metrics.audienceEngaged)}
+              {Number(metrics.audienceEngaged || 0).toLocaleString()}
             </p>
             <div className="flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-semibold mt-1">
               <CheckCircle2 className="w-3 h-3" />
-              <span>Active DM Conversations</span>
+              <span>Conversations Active</span>
             </div>
           </div>
         </div>
@@ -264,18 +247,18 @@ export default function ReportsPage() {
               <span>Conversion Efficiency</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Automated responses deliver in an average of <strong className="text-foreground">1.8 seconds</strong> with randomized human delays protecting your account safety.
+              Automated responses deliver in an average of <strong className="text-foreground">1.8 seconds</strong> with humanized delays protecting your account safety.
             </p>
           </div>
 
           <div className="p-4 rounded-2xl bg-card border border-border space-y-2 text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total Likes Logged:</span>
-              <span className="font-bold text-foreground">{safeNumber(metrics.totalLikes)}</span>
+              <span className="font-bold text-foreground">{Number(metrics.totalLikes || 0).toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total Comments Logged:</span>
-              <span className="font-bold text-foreground">{safeNumber(metrics.totalComments)}</span>
+              <span className="font-bold text-foreground">{Number(metrics.totalComments || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -308,13 +291,13 @@ export default function ReportsPage() {
                   <p className="text-xs font-semibold text-foreground truncate">{post.caption || "Instagram Post"}</p>
                   <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1 text-purple-500 font-semibold">
-                      <Eye className="w-3 h-3" /> {safeNumber(post.views)}
+                      <Eye className="w-3 h-3" /> {Number(post.views || 0).toLocaleString()}
                     </span>
                     <span className="flex items-center gap-1 text-rose-500 font-medium">
-                      <Heart className="w-3 h-3" /> {safeNumber(post.likes)}
+                      <Heart className="w-3 h-3" /> {Number(post.likes || 0).toLocaleString()}
                     </span>
                     <span className="flex items-center gap-1 text-blue-500 font-medium">
-                      <MessageCircle className="w-3 h-3" /> {safeNumber(post.comments)}
+                      <MessageCircle className="w-3 h-3" /> {Number(post.comments || 0).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -365,7 +348,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
                 <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
-                  {safeFormatTime(msg.created_at)}
+                  Delivered
                 </span>
               </div>
             ))
