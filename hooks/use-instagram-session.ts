@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 export function useInstagramSession() {
     const [username, setUsername] = useState<string | null>(null)
@@ -9,13 +9,13 @@ export function useInstagramSession() {
     const [profilePic, setProfilePic] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
 
-    const searchParams = useSearchParams()
     const router = useRouter()
 
     useEffect(() => {
-        const code = searchParams.get("code")
-
         const handleSession = async () => {
+            const searchParams = new URLSearchParams(window.location.search)
+            const code = searchParams.get("code")
+
             // CASE A: New Login from Instagram
             if (code) {
                 try {
@@ -55,7 +55,7 @@ export function useInstagramSession() {
         }
 
         handleSession()
-    }, [searchParams, router])
+    }, [router])
 
     const logout = () => {
         localStorage.removeItem("ig_user_id")

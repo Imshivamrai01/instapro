@@ -29,8 +29,13 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Sidebar({ className, username = "creator", profilePic, onLogout, onNavigate, ...props }: SidebarProps) {
   const pathname = usePathname()
-  const igUserId = typeof window !== "undefined" ? localStorage.getItem("ig_user_id") || "N/A" : "N/A"
-  const whatsappHelpUrl = `https://wa.me/919118016507?text=${encodeURIComponent(`Hello ShinePro Support, I need help with my account.\nAccount ID: ${igUserId}\nUsername: @${username}`)}`
+
+  const handleWhatsAppHelp = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const igUserId = typeof window !== "undefined" ? localStorage.getItem("ig_user_id") || "N/A" : "N/A"
+    const whatsappHelpUrl = `https://wa.me/919118016507?text=${encodeURIComponent(`Hello ShinePro Support, I need help with my account.\nAccount ID: ${igUserId}\nUsername: @${username}`)}`
+    window.open(whatsappHelpUrl, "_blank", "noopener,noreferrer")
+  }
 
   return (
     <aside className={cn("flex flex-col bg-sidebar text-sidebar-foreground", className)} {...props}>
@@ -97,15 +102,14 @@ export function Sidebar({ className, username = "creator", profilePic, onLogout,
           <span>Profile</span>
         </Link>
 
-        <a
-          href={whatsappHelpUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2 rounded-md text-[13px] text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring font-medium"
+        <button
+          type="button"
+          onClick={handleWhatsAppHelp}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-[13px] text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring font-medium text-left cursor-pointer"
         >
           <MessageCircle className="w-4 h-4 shrink-0 text-emerald-500" strokeWidth={1.8} />
           <span>Get help</span>
-        </a>
+        </button>
       </nav>
 
       {/* Account */}
