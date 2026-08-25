@@ -61,6 +61,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
   /* ---------- EXTRAS ---------- */
   const [name, setName] = useState("")
   const [checkFollow, setCheckFollow] = useState(false)
+  const [followGateTitle, setFollowGateTitle] = useState("")
+  const [followGateSubtitle, setFollowGateSubtitle] = useState("")
   const [delaySeconds, setDelaySeconds] = useState(0)
   const [typingIndicator, setTypingIndicator] = useState(false)
 
@@ -114,6 +116,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
     setPublicReplies(content.public_replies || [])
     setIncludeReplies(content.include_replies === true)
     setCheckFollow(content.check_follow === true)
+    setFollowGateTitle(content.follow_gate_title || "")
+    setFollowGateSubtitle(content.follow_gate_subtitle || "")
     setDelaySeconds(Number(content.delay_seconds) || 0)
     setTypingIndicator(content.typing_indicator === true)
     
@@ -179,12 +183,12 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
             : storyTriggerType === "reaction" ? "someone reacts to your story"
               : "someone replies to your story"
     const what =
-      replyMode === "public_only" ? "reply publicly"
-        : type === "card" ? "send them a card with buttons"
-          : type === "media" ? `send them ${mediaType === "image" ? "an image" : `a ${mediaType}`}`
-            : "send them a DM"
+      replyMode === "public_only"
+        ? "reply publicly with a comment"
+        : `${replyMode === "both" ? "reply publicly AND " : ""}send a private ${type === "text" ? "text DM" : type === "card" ? "interactive card" : "media file"}${checkFollow ? " (followers only)" : ""}`
+
     return { who, what }
-  }, [triggerSource, triggers, storyTriggerType, replyMode, type, mediaType])
+  }, [triggerSource, triggers, storyTriggerType, replyMode, type, checkFollow])
 
   /* ---------- save ---------- */
   const handleSubmit = async () => {
@@ -194,6 +198,10 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
     const isReplyAll = triggerSource === "comment" && triggers.length === 0
 
     const content: any = { check_follow: checkFollow }
+    if (checkFollow) {
+      if (followGateTitle.trim()) content.follow_gate_title = followGateTitle.trim()
+      if (followGateSubtitle.trim()) content.follow_gate_subtitle = followGateSubtitle.trim()
+    }
     if (delaySeconds > 0) content.delay_seconds = delaySeconds
     if (typingIndicator) content.typing_indicator = true
     if (triggerSource === "comment") {
@@ -683,6 +691,34 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
               <div className="space-y-4">
                 <FieldLabel>Delivery options</FieldLabel>
                 <ToggleRow icon={<Lock className="w-5 h-5" />} title="Follow gate required" sub="Only followers get the payload. Non-followers get follow prompt first." on={checkFollow} onToggle={() => setCheckFollow(!checkFollow)} />
+
+                {checkFollow && (
+                  <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10 space-y-3.5 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                      <span className="text-xs font-bold text-foreground">Custom Follow Gate Card Message</span>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-muted-foreground">Card Title</label>
+                      <input
+                        value={followGateTitle}
+                        onChange={(e) => setFollowGateTitle(e.target.value)}
+                        placeholder='Default: "Follow to Unlock ✨"'
+                        className="w-full h-9 bg-card border border-border rounded-xl px-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-muted-foreground">Card Subtitle / Prompt Message</label>
+                      <input
+                        value={followGateSubtitle}
+                        onChange={(e) => setFollowGateSubtitle(e.target.value)}
+                        placeholder='Default: "Please follow our page to unlock your exclusive access!"'
+                        className="w-full h-9 bg-card border border-border rounded-xl px-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <ToggleRow icon={<Eye className="w-5 h-5" />} title="Mimic active typing status" sub="Displays typing bubble indicators to look completely organic." on={typingIndicator} onToggle={() => setTypingIndicator(!typingIndicator)} />
                 
                 <div className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card shadow-sm">
