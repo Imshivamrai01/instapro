@@ -76,22 +76,12 @@ export function buildFollowGateCard(params: {
   title?: string
   subtitle?: string
 }): IGCard {
-  const cleanUser = params.username?.replace(/^@/, "").trim() || ""
-  const isFallbackId = !cleanUser || cleanUser.startsWith("user_")
-  
-  const displayUser = isFallbackId ? "our page" : `@${cleanUser}`
-  const defaultTitle = params.title || "Follow to Unlock ✨"
-  const defaultSubtitle = params.subtitle || `Please follow ${displayUser} to unlock your exclusive access!`
-
-  // Always link to the valid Instagram profile URL with trailing slash for reliable app-opening
-  const profileUrl = isFallbackId ? "https://www.instagram.com/" : `https://www.instagram.com/${cleanUser}/`
-
   return {
-    title: defaultTitle,
-    subtitle: defaultSubtitle,
+    title: params.title ?? "Before you lose me",
+    subtitle: params.subtitle ?? `Follow @${params.username} to unlock this content!`,
     buttons: [
-      { type: "web_url", url: profileUrl, title: "👉 Follow" },
-      { type: "postback", title: "I Followed! Unlock 🔓", payload: `UNLOCK_CONTENT_${params.ruleId}` },
+      { type: "web_url", url: `https://instagram.com/${params.username}`, title: "Follow" },
+      { type: "postback", title: "I Followed! ✅", payload: `UNLOCK_CONTENT_${params.ruleId}` },
     ],
   }
 }
