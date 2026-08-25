@@ -40,8 +40,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [resolvedTheme, setResolvedTheme] = React.useState<"light" | "dark">("dark")
   const [mounted, setMounted] = React.useState(false)
 
-  // Read stored theme on first mount and apply it before paint
-  React.useLayoutEffect(() => {
+  // Read stored theme on first mount and apply it
+  React.useEffect(() => {
     let initial: Theme = "dark"
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
