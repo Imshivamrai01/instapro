@@ -161,7 +161,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
   const needsKeywords = triggerSource === "dm" || (triggerSource === "story" && storyTriggerType !== "mention")
 
   const whenValid = triggerSource === "comment" 
-    ? hasSelectedReelOption // Comment trigger is valid once they select a specific post or global option
+    ? (postTargetMode === "global" || (postTargetMode === "specific" && selectedReel !== null))
     : !needsKeywords || triggers.length > 0
 
   const thenValid =
@@ -407,13 +407,17 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
 
                   {/* If Specific Mode: Display Feed Grid */}
                   {postTargetMode === "specific" && (
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-center justify-between">
+                    <div className="space-y-3.5 pt-2">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <p className="text-xs font-semibold text-foreground flex items-center gap-2">
                           <span>Choose from your Reels ({reels.length} found):</span>
-                          {selectedReel && (
+                          {selectedReel ? (
                             <span className="text-[10px] font-mono-ui font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                              ✓ Reel Selected
+                              ✓ Reel Selected ({selectedReel.id})
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-mono-ui font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                              Please click a Reel below
                             </span>
                           )}
                         </p>
@@ -426,6 +430,26 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                         </button>
                       </div>
 
+                      {/* Manual Reel ID / Link fallback */}
+                      <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/30 border border-border">
+                        <Link2 className="w-4 h-4 text-amber-500 shrink-0" />
+                        <input
+                          type="text"
+                          placeholder="Or paste specific Instagram Reel link / Media ID here..."
+                          value={selectedReel?.id && !reels.some((r) => r.id === selectedReel.id) ? selectedReel.id : ""}
+                          onChange={(e) => {
+                            const val = e.target.value.trim()
+                            if (val) {
+                              setSelectedReel({ id: val, caption: "Custom Reel Link" })
+                              setHasSelectedReelOption(true)
+                            } else {
+                              setSelectedReel(null)
+                            }
+                          }}
+                          className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
+                        />
+                      </div>
+
                       {loadingReels ? (
                         <div className="p-8 flex flex-col items-center justify-center gap-3 border border-border rounded-2xl bg-card">
                           <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
@@ -434,9 +458,9 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                       ) : reels.length === 0 ? (
                         <div className="p-8 text-center border border-dashed border-border rounded-2xl bg-card space-y-2">
                           <Film className="w-8 h-8 text-muted-foreground mx-auto" />
-                          <p className="text-xs font-semibold text-foreground">No Reels Found on Connected Account</p>
+                          <p className="text-xs font-semibold text-foreground">No Feed Items Returned by Meta</p>
                           <p className="text-[11px] text-muted-foreground max-w-sm mx-auto">
-                            Ensure you have published posts on your Instagram profile or use the Global option above.
+                            Paste your Reel URL above or select the Global option.
                           </p>
                         </div>
                       ) : (

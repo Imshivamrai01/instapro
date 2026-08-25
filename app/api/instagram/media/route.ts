@@ -10,10 +10,10 @@ export async function GET(request: NextRequest) {
 
     const supabase = await getSupabaseServerClient()
 
-    // 1. Get Access Token
+    // 1. Get Access Token and Business Account ID
     const { data: user } = await supabase
       .from("users")
-      .select("access_token") // Business ID ki zaroorat nahi hai ab
+      .select("access_token, business_account_id, page_id")
       .eq("id", userId)
       .single()
 
@@ -21,37 +21,54 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Instagram not connected" }, { status: 401 })
     }
 
-    // 2. Fetch Media (Smart Method: /me/media)
-    // Ye 'instagram.com' use karega jo aapke token ke saath compatible hai.
-    // Hum '/me' use kar rahe hain taaki ID mismatch ka lafda hi na ho.
-    const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&limit=50&access_token=${user.access_token}`
+    const token = user.access_token
+    const targetIds = [
+      "me",
+      user.business_account_id?.toString(),
+      user.page_id?.toString(),
+      userId,
+    ].filter(Boolean) as string[]
 
-    console.log("[v0] Fetching Media from:", url)
+    let rawMedia: any[] = []
 
-    const res = await fetch(url, { cache: 'no-store' })
-    const data = await res.json()
+    // Try fetching from endpoints
+    for (const targetId of targetIds) {
+      if (rawMedia.length > 0) break
 
-    if (data.error) {
-      console.error("[v0] Instagram Media Error:", data.error)
-      // Agar Token Invalid hai, to user ko Logout karne bolenge frontend pe
-      if (data.error.code === 190) {
-         return NextResponse.json({ error: "Session Expired. Please Logout & Login." }, { status: 401 })
+      const endpoints = [
+        `https://graph.instagram.com/v24.0/${targetId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&limit=50&access_token=${token}`,
+        `https://graph.instagram.com/${targetId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&limit=50&access_token=${token}`,
+        `https://graph.facebook.com/v24.0/${targetId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&limit=50&access_token=${token}`,
+      ]
+
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(ep, { cache: "no-store" })
+          const json = await res.json()
+          if (json && Array.isArray(json.data) && json.data.length > 0) {
+            rawMedia = json.data
+            console.log(`[media] Successfully fetched ${rawMedia.length} posts from ${ep.split("?")[0]}`)
+            break
+          }
+        } catch (e) {
+          console.warn(`[media] Failed fetching from ${ep.split("?")[0]}`)
+        }
       }
-      return NextResponse.json({ error: data.error.message }, { status: 500 })
     }
 
-    // Normalize: pick thumbnail_url for videos, media_url for images.
-    // Skips items with neither URL so we never return the broken `image_url: null` shape.
-    const normalized = (data.data || [])
-      .map((m: any) => ({
-        ...m,
-        image_url: m.thumbnail_url || m.media_url || null,
-      }))
-      .filter((m: any) => typeof m.image_url === "string" && m.image_url.length > 0)
+    // Normalize: pick thumbnail_url for videos, media_url for images, never drop items
+    const normalized = rawMedia.map((m: any) => ({
+      id: m.id,
+      caption: m.caption || "Untitled Reel / Post",
+      media_type: m.media_type || "VIDEO",
+      image_url: m.thumbnail_url || m.media_url || null,
+      permalink: m.permalink || `https://instagram.com/p/${m.id}`,
+      timestamp: m.timestamp || null,
+    }))
 
     return NextResponse.json({ data: normalized })
   } catch (error) {
-    console.error("[v0] Server Error:", error)
+    console.error("[media] Server Error:", error)
     return NextResponse.json({ error: "Server Error" }, { status: 500 })
   }
 }
