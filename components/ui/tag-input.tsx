@@ -38,20 +38,20 @@ export function TagInput({ value, onChange, placeholder, className }: TagInputPr
     }
 
     return (
-        <div className={`flex flex-wrap gap-2 p-2 rounded-lg border border-white/10 bg-black/20 focus-within:border-[#ffe14d]/50 transition-all ${className}`}>
+        <div className={`flex flex-wrap gap-2 p-2 rounded-xl border border-border bg-card focus-within:border-amber-500/50 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all ${className || ""}`}>
             {value.map((tag, index) => (
                 <Badge
                     key={index}
                     variant="secondary"
-                    className="bg-[#ffe14d]/10 text-[#ffe14d] border-[#ffe14d]/25 hover:bg-[#ffe14d]/20 pl-2.5 pr-1 py-1 text-xs font-medium gap-1.5"
+                    className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 pl-2.5 pr-1 py-1 text-xs font-semibold gap-1.5 shadow-sm"
                 >
                     {tag}
                     <button
                         type="button"
                         onClick={() => removeTag(index)}
-                        className="hover:bg-purple-500/40 rounded-sm p-0.5 transition-colors"
+                        className="hover:bg-amber-500/30 rounded-sm p-0.5 transition-colors"
                     >
-                        <X className="w-3 h-3" />
+                        <X className="w-3 h-3 text-amber-700 dark:text-amber-300" />
                     </button>
                 </Badge>
             ))}
@@ -61,7 +61,7 @@ export function TagInput({ value, onChange, placeholder, className }: TagInputPr
                 onKeyDown={handleKeyDown}
                 onBlur={addTag}
                 placeholder={value.length === 0 ? placeholder : ""}
-                className="flex-1 min-w-[120px] border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm px-1"
+                className="flex-1 min-w-[120px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 text-sm px-2 h-8"
             />
         </div>
     )

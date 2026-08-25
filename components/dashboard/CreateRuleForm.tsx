@@ -578,28 +578,28 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                           </button>
                         </div>
                         {buttons.map((btn) => (
-                          <div key={btn.id} className="flex gap-2 items-center bg-white/[0.02] p-3 rounded-2xl border border-border">
+                          <div key={btn.id} className="flex gap-2 items-center bg-card p-3 rounded-2xl border border-border shadow-sm">
                             <input
                               value={btn.title}
                               onChange={(e) => updateButton(btn.id, "title", e.target.value)}
-                              className="h-8 text-xs flex-1 bg-transparent border-none px-2 text-foreground placeholder:text-muted-foreground focus:outline-none"
+                              className="h-8 text-xs flex-1 bg-muted/40 border border-border rounded-lg px-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50"
                               placeholder="Button label"
                             />
                             <select
                               value={btn.type}
                               onChange={(e) => updateButton(btn.id, "type", e.target.value)}
-                              className="h-8 text-[11px] bg-black border border-border rounded-lg px-2 text-foreground focus:outline-none"
+                              className="h-8 text-[11px] bg-card border border-border rounded-lg px-2 text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                             >
-                              <option value="web_url">Open Link</option>
-                              <option value="postback">Trigger Flow</option>
+                              <option value="web_url" className="bg-card text-foreground">Open Link</option>
+                              <option value="postback" className="bg-card text-foreground">Trigger Flow</option>
                             </select>
                             <input
                               value={btn.type === "web_url" ? btn.url : btn.payload}
                               onChange={(e) => updateButton(btn.id, btn.type === "web_url" ? "url" : "payload", e.target.value)}
-                              className="h-8 text-xs flex-1 bg-transparent border-none px-2 text-foreground placeholder:text-muted-foreground focus:outline-none font-mono"
+                              className="h-8 text-xs flex-1 bg-muted/40 border border-border rounded-lg px-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 font-mono"
                               placeholder={btn.type === "web_url" ? "https://link" : "flow_keyword"}
                             />
-                            <button type="button" onClick={() => removeButton(btn.id)} className="text-muted-foreground hover:text-red-400 p-1.5 transition-colors">
+                            <button type="button" onClick={() => removeButton(btn.id)} className="text-muted-foreground hover:text-red-500 p-1.5 transition-colors">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
@@ -685,10 +685,10 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 <ToggleRow icon={<Lock className="w-5 h-5" />} title="Follow gate required" sub="Only followers get the payload. Non-followers get follow prompt first." on={checkFollow} onToggle={() => setCheckFollow(!checkFollow)} />
                 <ToggleRow icon={<Eye className="w-5 h-5" />} title="Mimic active typing status" sub="Displays typing bubble indicators to look completely organic." on={typingIndicator} onToggle={() => setTypingIndicator(!typingIndicator)} />
                 
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-border bg-white/[0.01]">
+                <div className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card shadow-sm">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center border border-border">
-                      <Timer className="w-4.5 h-4.5 text-muted-foreground" />
+                      <Timer className="w-4.5 h-4.5 text-amber-500 dark:text-amber-400" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">Randomized delivery delay</p>
@@ -698,26 +698,26 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                   <select
                     value={delaySeconds}
                     onChange={(e) => setDelaySeconds(Number(e.target.value))}
-                    className="bg-black border border-border rounded-xl px-3 py-2 text-xs text-foreground focus:outline-none hover:border-border transition-all cursor-pointer"
+                    className="bg-background text-foreground border border-border rounded-xl px-3.5 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/40 hover:border-amber-500/50 transition-all cursor-pointer shadow-sm"
                   >
-                    <option value={0}>Send Immediately</option>
-                    <option value={3}>3s delay</option>
-                    <option value={5}>5s delay</option>
-                    <option value={10}>10s delay</option>
-                    <option value={30}>30s delay</option>
+                    <option value={0} className="bg-background text-foreground">Send Immediately</option>
+                    <option value={3} className="bg-background text-foreground">3s delay</option>
+                    <option value={5} className="bg-background text-foreground">5s delay</option>
+                    <option value={10} className="bg-background text-foreground">10s delay</option>
+                    <option value={30} className="bg-background text-foreground">30s delay</option>
                   </select>
                 </div>
               </div>
 
               {/* Plain-text Summary Panel */}
-              <div className="rounded-2xl border border-accent-yellow/15 bg-accent-yellow/[0.03] p-5 space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-accent-yellow-foreground" />
-                                <span className="text-xs font-mono-ui uppercase tracking-widest text-accent-yellow-foreground font-bold">Rule Logic Summary</span>
-                              </div>
-                              <p className="text-xs text-muted-foreground leading-relaxed">
-                                When <span className="text-foreground font-semibold underline decoration-accent-yellow/40 decoration-2">{summary.who}</span>, we will <span className="text-accent-yellow-foreground font-semibold">{summary.what}</span>.
-                              </p>
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10 p-5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                  <span className="text-xs font-mono-ui uppercase tracking-widest text-amber-700 dark:text-amber-300 font-bold">Rule Logic Summary</span>
+                </div>
+                <p className="text-xs text-foreground/80 leading-relaxed">
+                  When <span className="text-foreground font-semibold underline decoration-amber-500/50 decoration-2">{summary.who}</span>, we will <span className="text-amber-600 dark:text-amber-400 font-bold">{summary.what}</span>.
+                </p>
               </div>
             </div>
           )}
@@ -728,9 +728,8 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
               <button
                 type="button"
                 onClick={() => setStep(step - 1)}
-                className="flex items-center gap-2 h-11 px-5 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-border font-mono-ui text-xs font-bold transition-all"
+                className="flex items-center gap-2 h-11 px-5 rounded-full border border-border text-foreground font-mono-ui text-xs font-semibold hover:bg-muted transition-colors"
               >
-                <ChevronLeft className="w-4 h-4" />
                 Back
               </button>
             ) : <div />}
@@ -740,7 +739,7 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 type="button"
                 onClick={() => { if (stepValid[step]) setStep(step + 1) }}
                 disabled={!stepValid[step]}
-                className="flex items-center gap-2 h-11 px-6 rounded-full bg-white text-black font-mono-ui text-xs font-bold hover:bg-accent-yellow hover:shadow-[0_0_20px_rgba(255,225,77,0.25)] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
+                className="flex items-center gap-2 h-11 px-7 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-mono-ui text-xs font-bold hover:shadow-lg hover:shadow-amber-500/20 active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
               >
                 Continue
                 <ChevronRight className="w-4 h-4" />
@@ -750,10 +749,10 @@ export function CreateRuleForm({ userId, triggerSource, onSuccess, editRule }: C
                 type="button"
                 onClick={handleSubmit}
                 disabled={!canSave || saving}
-                className="flex items-center justify-center gap-2 h-11 px-8 rounded-full bg-accent-yellow text-black font-mono-ui text-sm font-bold hover:brightness-95 hover:shadow-[0_0_25px_rgba(255,225,77,0.35)] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
+                className="flex items-center justify-center gap-2 h-11 px-8 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-mono-ui text-sm font-bold hover:shadow-xl hover:shadow-amber-500/25 active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed ml-auto"
               >
-                {saving ? <Loader2 className="w-4.5 h-4.5 animate-spin" /> : <Zap className="w-4 h-4 stroke-[2.5]" />}
-                {saving ? "Saving Changes..." : isEditing ? "Save Automation" : "Go Live"}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 fill-slate-950" />}
+                {saving ? "Saving Changes..." : isEditing ? "Save Automation" : "Activate Automation"}
               </button>
             )}
           </div>

@@ -69,7 +69,7 @@ export function ConversationList({ userId, selectedId, onSelect }: ConversationL
                             className={cn(
                                 "p-3 rounded-lg flex items-center gap-3 cursor-pointer transition-colors border border-transparent",
                                 selectedId === conv.id
-                                    ? "bg-accent-yellow/15 border-accent-yellow/40"
+                                    ? "bg-amber-500/10 border-amber-500/40"
                                     : "hover:bg-accent hover:border-border"
                             )}
                         >
@@ -80,7 +80,7 @@ export function ConversationList({ userId, selectedId, onSelect }: ConversationL
                                 <div className="flex items-center justify-between mb-0.5">
                                     <span className={cn(
                                         "font-semibold text-sm truncate",
-                                        selectedId === conv.id ? "text-accent-yellow-foreground dark:text-accent-yellow" : "text-foreground"
+                                        selectedId === conv.id ? "text-amber-700 dark:text-amber-300 font-bold" : "text-foreground"
                                     )}>
                                         {conv.recipient_username}
                                     </span>

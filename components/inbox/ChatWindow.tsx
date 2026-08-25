@@ -180,7 +180,7 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
                                 onClick={() => handleSendMessage(auto.response_content?.message || auto.name)}
                                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-accent text-sm text-popover-foreground transition-colors flex items-center gap-2"
                             >
-                                <Zap className="w-3 h-3 text-accent-yellow-foreground dark:text-accent-yellow" />
+                                <Zap className="w-3 h-3 text-amber-500 dark:text-amber-400" />
                                 <span className="truncate">{auto.name}</span>
                             </button>
                         ))}
@@ -193,15 +193,15 @@ export function ChatWindow({ conversationId, recipientId, recipientName, userId,
 
             {/* Input Area */}
             <div className="p-3 md:p-4 border-t border-border bg-card shrink-0">
-                <div className="flex items-center gap-2 bg-muted rounded-xl border border-border p-1.5 focus-within:border-accent-yellow focus-within:ring-2 focus-within:ring-accent-yellow/30 transition-all">
+                <div className="flex items-center gap-2 bg-muted/60 rounded-xl border border-border p-1.5 focus-within:border-amber-500/50 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all">
                     <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => setIsAutomationOpen(!isAutomationOpen)}
                         aria-label="Toggle quick responses"
                         className={cn(
-                            "h-9 w-9 hover:bg-accent text-muted-foreground hover:text-accent-yellow-foreground dark:hover:text-accent-yellow transition-colors shrink-0",
-                            isAutomationOpen && "text-accent-yellow-foreground dark:text-accent-yellow bg-accent-yellow/15"
+                            "h-9 w-9 hover:bg-accent text-muted-foreground hover:text-amber-500 transition-colors shrink-0",
+                            isAutomationOpen && "text-amber-500 bg-amber-500/10"
                         )}
                     >
                         <Zap className="w-5 h-5" />

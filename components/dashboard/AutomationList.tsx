@@ -258,22 +258,22 @@ function RuleCard({ rule, onDelete, onEdit, onToggle, onDuplicate, index, isSpec
 
             <div className="flex items-center gap-1.5">
               {isCard ? (
-                <Send className="w-3 h-3 text-accent-blue" />
+                <Send className="w-3 h-3 text-blue-500 dark:text-blue-400" />
               ) : isMedia ? (
-                <ImageIcon className="w-3 h-3 text-accent-pink" />
+                <ImageIcon className="w-3 h-3 text-pink-500 dark:text-pink-400" />
               ) : (
-                <MessageCircle className="w-3 h-3 text-accent-yellow-foreground dark:text-accent-yellow" />
+                <MessageCircle className="w-3 h-3 text-amber-500 dark:text-amber-400" />
               )}
               <span className="text-[11px] text-muted-foreground truncate max-w-[120px]">{responsePreview}</span>
             </div>
 
             {replyMode === "dm_only" && (
-              <Badge variant="secondary" className="bg-accent-blue/10 text-accent-blue border border-accent-blue/30 text-[10px] px-1.5 py-0">
+              <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/30 text-[10px] px-1.5 py-0">
                 <EyeOff className="w-2.5 h-2.5 mr-0.5" /> DM only
               </Badge>
             )}
             {replyMode === "public_only" && (
-              <Badge variant="secondary" className="bg-accent-pink/10 text-accent-pink border border-accent-pink/30 text-[10px] px-1.5 py-0">
+              <Badge variant="secondary" className="bg-pink-500/10 text-pink-700 dark:text-pink-300 border border-pink-500/30 text-[10px] px-1.5 py-0">
                 <Megaphone className="w-2.5 h-2.5 mr-0.5" /> Public only
               </Badge>
             )}
@@ -283,7 +283,7 @@ function RuleCard({ rule, onDelete, onEdit, onToggle, onDuplicate, index, isSpec
               </Badge>
             )}
             {content.check_follow && (
-              <Badge variant="secondary" className="bg-accent-yellow/10 text-accent-yellow-foreground dark:text-accent-yellow border border-accent-yellow/30 text-[10px] px-1.5 py-0">
+              <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[10px] px-1.5 py-0">
                 <Lock className="w-2.5 h-2.5 mr-0.5" /> Follow
               </Badge>
             )}

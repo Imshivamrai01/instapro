@@ -166,7 +166,7 @@ export default function AutomationsPage() {
                                     aria-pressed={aiEnabled}
                                     className={`flex items-center gap-2 h-9 px-4 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                                         aiEnabled
-                                            ? 'bg-accent-yellow text-accent-yellow-foreground border border-accent-yellow'
+                                            ? 'bg-amber-400 text-slate-950 border border-amber-400 font-extrabold shadow-sm'
                                             : 'bg-card text-muted-foreground border border-border hover:text-foreground hover:bg-accent'
                                     }`}
                                 >
@@ -184,7 +184,7 @@ export default function AutomationsPage() {
                             className={`flex items-center gap-2 h-9 px-5 rounded-full font-mono-ui text-[11px] font-bold uppercase tracking-widest transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                                 showCreateForm
                                     ? 'bg-card text-foreground border border-border hover:bg-accent'
-                                    : 'bg-primary text-primary-foreground hover:opacity-90'
+                                    : 'bg-primary text-primary-foreground hover:opacity-90 shadow-sm'
                             }`}
                         >
                             <Plus className={`w-4 h-4 transition-transform duration-200 ${showCreateForm ? 'rotate-45' : ''}`} />
@@ -195,18 +195,18 @@ export default function AutomationsPage() {
 
                 {/* AI Context Panel */}
                 {showAiContext && (
-                    <div className="rounded-2xl border border-[#ffe14d]/20 bg-[#ffe14d]/[0.04] p-5 animate-in fade-in slide-in-from-top-2 duration-200 space-y-4">
-                        <div className="flex items-center gap-2">
-                            <Brain className="w-4 h-4 text-[#ffe14d]" />
-                            <span className="text-sm font-semibold text-[#ffe14d]">AI Settings</span>
+                    <div className="rounded-2xl border border-amber-500/30 bg-card p-6 shadow-md space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="flex items-center gap-2 pb-3 border-b border-border">
+                            <Brain className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+                            <span className="text-sm font-bold text-foreground">AI Auto-Reply Configuration</span>
                         </div>
 
                         {/* API Key */}
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                                <label className="text-xs text-neutral-400 font-medium">API Key</label>
+                                <label className="text-xs text-foreground font-semibold">Groq / OpenAI API Key</label>
                                 {hasApiKey && !showApiKey && (
-                                    <span className="text-[10px] text-emerald-500 font-mono">● key saved</span>
+                                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-medium">● Key active in database</span>
                                 )}
                             </div>
                             {showApiKey || !hasApiKey ? (
@@ -215,67 +215,67 @@ export default function AutomationsPage() {
                                         type="password"
                                         value={groqApiKey}
                                         onChange={e => setGroqApiKey(e.target.value)}
-                                        placeholder={hasApiKey ? "Enter new key to replace…" : "sk_… or gsk_…"}
-                                        className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ffe14d]/50 transition-colors font-mono"
+                                        placeholder={hasApiKey ? "Enter new key to replace…" : "gsk_… or sk-…"}
+                                        className="flex-1 bg-muted/40 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
                                     />
                                     {hasApiKey && (
-                                        <button onClick={() => setShowApiKey(false)} className="px-3 py-2.5 rounded-xl border border-white/10 text-neutral-500 text-xs hover:text-white transition-colors">Cancel</button>
+                                        <button onClick={() => setShowApiKey(false)} className="px-3 py-2.5 rounded-xl border border-border text-muted-foreground text-xs hover:text-foreground transition-colors">Cancel</button>
                                     )}
                                 </div>
                             ) : (
                                 <button
                                     onClick={() => setShowApiKey(true)}
-                                    className="w-full text-left px-4 py-2.5 rounded-xl border border-white/10 text-neutral-500 text-sm hover:border-white/20 hover:text-white transition-colors"
+                                    className="w-full text-left px-4 py-2.5 rounded-xl border border-border bg-muted/20 text-muted-foreground text-sm hover:border-amber-500/40 hover:text-foreground transition-colors"
                                 >
-                                    •••••••••••••••••••• <span className="text-xs ml-2 text-neutral-600">click to replace</span>
+                                    •••••••••••••••••••• <span className="text-xs ml-2 text-muted-foreground/80 font-mono">(click to change key)</span>
                                 </button>
                             )}
                         </div>
 
                         {/* API Base URL */}
                         <div className="space-y-1.5">
-                            <label className="text-xs text-neutral-400 font-medium">API Base URL <span className="text-neutral-600 font-normal">(optional)</span></label>
+                            <label className="text-xs text-foreground font-semibold">API Base URL <span className="text-muted-foreground font-normal">(optional)</span></label>
                             <input
                                 type="text"
                                 value={aiBaseUrl}
                                 onChange={e => setAiBaseUrl(e.target.value)}
-                                placeholder="https://api.groq.com/v1  (default) or your own endpoint"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ffe14d]/50 transition-colors font-mono"
+                                placeholder="https://api.groq.com/v1 (default)"
+                                className="w-full bg-muted/40 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
                             />
-                            <p className="text-[11px] text-neutral-600">Any OpenAI-compatible endpoint works — Groq, OpenAI, Together, your own proxy.</p>
+                            <p className="text-[11px] text-muted-foreground">Any OpenAI-compatible endpoint works — Groq, OpenAI, Together, or self-hosted LLM.</p>
                         </div>
 
                         {/* Model */}
                         <div className="space-y-1.5">
-                            <label className="text-xs text-neutral-400 font-medium">Model <span className="text-neutral-600 font-normal">(optional)</span></label>
+                            <label className="text-xs text-foreground font-semibold">AI Model <span className="text-muted-foreground font-normal">(optional)</span></label>
                             <input
                                 type="text"
                                 value={aiModel}
                                 onChange={e => setAiModel(e.target.value)}
-                                placeholder="llama-3.1-8b-instant  (Groq default)"
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#ffe14d]/50 transition-colors font-mono"
+                                placeholder="llama-3.1-8b-instant (Groq default)"
+                                className="w-full bg-muted/40 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50 transition-colors font-mono"
                             />
                         </div>
 
                         {/* AI Personality Context */}
                         <div className="space-y-1.5">
-                            <label className="text-xs text-neutral-400 font-medium">AI Personality Context</label>
-                            <p className="text-[11px] text-neutral-600">Tell AI about your account — niche, products, tone, what to say/avoid.</p>
+                            <label className="text-xs text-foreground font-semibold">AI Persona & Business Context</label>
+                            <p className="text-[11px] text-muted-foreground">Explain your business, products, pricing, and tone so AI replies naturally.</p>
                             <textarea
                                 value={aiContext}
                                 onChange={e => setAiContext(e.target.value)}
-                                placeholder={`e.g. This is a fitness coaching account. I sell online training programs (₹2999/mo). My tone is motivating but chill. If someone asks about pricing, tell them to DM for a free consultation. Never promise specific results.`}
+                                placeholder="e.g. We sell premium creator merchandise. Our tone is friendly and fast. If someone asks for prices, share ₹499 starting price. Always encourage them to browse catalog."
                                 rows={4}
-                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 resize-none focus:outline-none focus:border-[#ffe14d]/50 transition-colors"
+                                className="w-full bg-muted/40 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-amber-500/50 transition-colors"
                             />
                         </div>
 
                         <button
                             onClick={handleSaveAiContext}
                             disabled={aiContextSaving}
-                            className="px-4 py-2 rounded-xl bg-[#ffe14d] hover:brightness-95 text-black text-xs font-bold transition-all disabled:opacity-50"
+                            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 text-xs font-bold hover:shadow-md hover:shadow-amber-500/20 active:scale-95 transition-all disabled:opacity-50"
                         >
-                            {aiContextSaving ? 'Saving...' : aiContextSaved ? 'Saved ✓' : 'Save'}
+                            {aiContextSaving ? 'Saving...' : aiContextSaved ? 'Saved ✓' : 'Save AI Settings'}
                         </button>
                     </div>
                 )}
