@@ -105,47 +105,52 @@ export function IceBreakersManager() {
         }
 
     return (
-        <div className="space-y-6 max-w-2xl mx-auto">
-            <div className="flex items-center justify-between">
+        <div className="space-y-6 max-w-3xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
                 <div>
-                    <h2 className="font-serif-display text-3xl text-foreground">Ice Breakers</h2>
-                    <p className="text-muted-foreground text-sm">
-                        Questions people see when they start a chat with you.
+                    <div className="flex items-center gap-2">
+                        <h2 className="font-serif-display text-3xl md:text-4xl text-foreground">Bot Messages (Q&A)</h2>
+                    </div>
+                    <p className="text-muted-foreground text-xs sm:text-sm mt-1">
+                        Feed custom Questions & Answers here. When a user asks or taps a question in Instagram DMs, the bot instantly sends your set reply.
                     </p>
                 </div>
                 <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-primary text-primary-foreground hover:opacity-90 font-bold"
+                    className="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-bold hover:shadow-lg hover:shadow-amber-500/20 active:scale-95 transition-all shadow-sm shrink-0"
                 >
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                    Save & Sync
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2 fill-slate-950" />}
+                    Save & Sync Bot Q&A
                 </Button>
             </div>
 
             <div className="space-y-4">
                 {breakers.map((item, idx) => (
-                    <div key={idx} className="bg-card border border-border p-4 rounded-xl space-y-3 relative group">
+                    <div key={idx} className="bg-card border border-border p-5 rounded-2xl space-y-4 relative shadow-sm hover:border-amber-500/30 transition-all">
                         <div className="flex justify-between items-start gap-4">
-                            <div className="flex-1 space-y-3">
-                                <div>
-                                    <label className="text-xs text-muted-foreground font-semibold uppercase">Question</label>
-                                    <Input
-                                        value={item.question}
-                                        onChange={e => handleChange(idx, "question", e.target.value)}
-                                        placeholder="e.g., What are your prices?"
-                                        className="bg-background border-input mt-1 focus-visible:ring-ring"
-                                        maxLength={80}
-                                    />
+                            <div className="flex-1 space-y-3.5">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-5 h-5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-300 font-mono text-[11px] font-bold flex items-center justify-center">
+                                        {idx + 1}
+                                    </span>
+                                    <label className="text-xs text-foreground font-semibold">User Question (Prompt)</label>
                                 </div>
-                                <div>
-                                    <label className="text-xs text-muted-foreground font-semibold uppercase">Auto-Response</label>
+                                <Input
+                                    value={item.question}
+                                    onChange={e => handleChange(idx, "question", e.target.value)}
+                                    placeholder="e.g., What are your service prices / package details?"
+                                    className="bg-background border-border text-foreground text-sm focus-visible:ring-1 focus-visible:ring-amber-500/50"
+                                    maxLength={80}
+                                />
+                                <div className="space-y-1">
+                                    <label className="text-xs text-foreground font-semibold">Bot Auto-Reply (Instant Message)</label>
                                     <Textarea
                                         value={item.response}
                                         onChange={e => handleChange(idx, "response", e.target.value)}
-                                        placeholder="The reply users will receive..."
-                                        className="bg-background border-input mt-1 focus-visible:ring-ring"
-                                        rows={2}
+                                        placeholder="e.g., Hey! Our standard package starts at ₹999. You can check the complete list at our website..."
+                                        className="bg-background border-border text-foreground text-sm resize-none focus-visible:ring-1 focus-visible:ring-amber-500/50"
+                                        rows={3}
                                     />
                                 </div>
                             </div>
@@ -153,8 +158,8 @@ export function IceBreakersManager() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleRemove(idx)}
-                                aria-label="Remove ice breaker"
-                                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                aria-label="Remove question"
+                                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                             >
                                 <Trash2 className="w-4 h-4" />
                             </Button>
@@ -163,8 +168,9 @@ export function IceBreakersManager() {
                 ))}
 
                 {breakers.length === 0 && (
-                    <div className="text-center py-10 border border-dashed border-border rounded-xl text-muted-foreground bg-card/40">
-                        No ice breakers yet. Add one to get started!
+                    <div className="text-center py-12 border border-dashed border-border rounded-2xl text-muted-foreground bg-card/40 space-y-2">
+                        <p className="font-semibold text-foreground text-sm">No Bot Q&A created yet</p>
+                        <p className="text-xs max-w-sm mx-auto">Add your frequently asked questions so the bot can answer incoming queries on autopilot.</p>
                     </div>
                 )}
 
@@ -172,17 +178,17 @@ export function IceBreakersManager() {
                     <Button
                         variant="outline"
                         onClick={handleAdd}
-                        className="w-full border-dashed border-border hover:bg-accent text-muted-foreground hover:text-foreground"
+                        className="w-full h-12 rounded-xl border-dashed border-border hover:bg-amber-500/5 hover:border-amber-500/40 text-muted-foreground hover:text-foreground font-medium transition-all"
                     >
-                        <Plus className="w-4 h-4 mr-2" /> Add Question
+                        <Plus className="w-4 h-4 mr-2 text-amber-500" /> Add Q&A Pair ({breakers.length}/4)
                     </Button>
                 )}
             </div>
 
-            <div className="bg-muted border border-border p-4 rounded-xl flex gap-3 text-sm text-foreground">
-                <RefreshCw className="w-5 h-5 shrink-0 text-muted-foreground" />
-                <p>
-                    Changes made here are automatically synced to your Instagram Profile. It may take a few minutes for them to appear for all users.
+            <div className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex gap-3 text-xs text-foreground/90">
+                <RefreshCw className="w-5 h-5 shrink-0 text-amber-500" />
+                <p className="leading-relaxed">
+                    <strong>Auto-Sync Active:</strong> Questions saved here appear as interactive chat starters in Instagram DMs. When a follower taps any question, your paired answer is instantly sent.
                 </p>
             </div>
         </div>

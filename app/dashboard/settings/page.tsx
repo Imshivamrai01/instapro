@@ -1,445 +1,232 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { useInstagramSession } from "@/hooks/use-instagram-session"
 import {
-  Bot,
-  CheckCircle2,
-  Copy,
-  ExternalLink,
-  Globe,
-  Key,
-  MessageCircle,
-  RefreshCw,
-  Save,
-  Server,
-  Settings,
-  ShieldCheck,
-  Sparkles,
-  User,
-  Zap,
+  User, ShieldCheck, Instagram, ExternalLink, RefreshCw,
+  Users, UserCheck, Film, Zap, MessageCircle, Sparkles, Loader2
 } from "lucide-react"
-import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
-export default function SettingsPage() {
-  const { username, userId, isLoading: isSessionLoading } = useInstagramSession()
-  const [activeTab, setActiveTab] = useState<"account" | "ai" | "webhook" | "support">("account")
-  
-  // AI Settings State
-  const [groqEnabled, setGroqEnabled] = useState(false)
-  const [groqApiKey, setGroqApiKey] = useState("")
-  const [aiContext, setAiContext] = useState("")
-  const [aiModel, setAiModel] = useState("llama-3.1-8b-instant")
-  const [savingAi, setSavingAi] = useState(false)
-  const [aiSaved, setAiSaved] = useState(false)
+export default function ProfilePage() {
+  const { userId, username, isLoading: sessionLoading } = useInstagramSession()
+  const [profile, setProfile] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
-  // Copy state
-  const [copiedUrl, setCopiedUrl] = useState(false)
-  const [copiedToken, setCopiedToken] = useState(false)
-
-  const webhookUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/api/instagram/webhook`
-    : "https://instapro-lac.vercel.app/api/instagram/webhook"
-  const verifyToken = "instapro_secure_verify_token_2026"
-
-  // Fetch current user settings
-  useEffect(() => {
-    if (!userId) return
-    fetch(`/api/groq/auto-reply?userId=${userId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data && !data.error) {
-          setGroqEnabled(!!data.enabled)
-          setAiContext(data.ai_context || "")
-          setGroqApiKey(data.groq_api_key || "")
-          if (data.ai_model) setAiModel(data.ai_model)
-        }
-      })
-      .catch(() => {})
-  }, [userId])
-
-  const handleToggleGroq = async (newVal: boolean) => {
-    setGroqEnabled(newVal)
+  const fetchProfileData = async (showToast = false) => {
     if (!userId) return
     try {
-      await fetch("/api/groq/auto-reply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          enabled: newVal,
-          ai_context: aiContext,
-          groq_api_key: groqApiKey || null,
-          ai_model: aiModel,
-        }),
-      })
-      setAiSaved(true)
-      setTimeout(() => setAiSaved(false), 2500)
-    } catch (e) {
-      console.error("Failed to toggle AI state", e)
-    }
-  }
-
-  const handleSaveAiSettings = async () => {
-    if (!userId) return
-    setSavingAi(true)
-    setAiSaved(false)
-    try {
-      const res = await fetch("/api/groq/auto-reply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          enabled: groqEnabled,
-          groq_api_key: groqApiKey || null,
-          ai_context: aiContext,
-          ai_model: aiModel,
-        }),
-      })
-      if (res.ok) {
-        setAiSaved(true)
-        setTimeout(() => setAiSaved(false), 3000)
+      if (showToast) setRefreshing(true)
+      const res = await fetch(`/api/instagram/profile?userId=${userId}`)
+      const data = await res.json()
+      if (data.profile) {
+        setProfile(data.profile)
+        if (showToast) toast.success("Profile statistics updated!")
       }
     } catch (e) {
-      console.error("Failed to save AI settings", e)
+      console.error("Error fetching profile", e)
+      if (showToast) toast.error("Could not refresh profile data")
     } finally {
-      setSavingAi(false)
+      setLoading(false)
+      setRefreshing(false)
     }
   }
 
-  const copyToClipboard = (text: string, type: "url" | "token") => {
-    navigator.clipboard.writeText(text)
-    if (type === "url") {
-      setCopiedUrl(true)
-      setTimeout(() => setCopiedUrl(false), 2000)
-    } else {
-      setCopiedToken(true)
-      setTimeout(() => setCopiedToken(false), 2000)
+  useEffect(() => {
+    if (userId) {
+      fetchProfileData()
+    } else if (!sessionLoading) {
+      setLoading(false)
     }
+  }, [userId, sessionLoading])
+
+  if (sessionLoading || loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 text-amber-500 animate-spin mb-3" />
+        <p className="text-xs text-muted-foreground">Loading Instagram Profile details...</p>
+      </div>
+    )
   }
 
-  const displayUser = username && !username.startsWith("user_") ? `@${username}` : username || "@creator"
+  const currentUsername = profile?.username || username || "creator"
+  const displayName = profile?.name || currentUsername
+  const whatsappUrl = `https://wa.me/919118016507?text=${encodeURIComponent(`Hello ShinePro Support, I need help with my account.\nAccount ID: ${userId || "N/A"}\nUsername: @${currentUsername}`)}`
 
   return (
-    <div className="p-6 md:p-8 space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="font-mono-ui text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Management Console</span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono-ui font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-            <ShieldCheck className="w-3 h-3 text-amber-500" /> System Healthy
-          </span>
-        </div>
-        <h1 className="font-serif-display text-4xl text-foreground">System Settings</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Configure connected Instagram permissions, autonomous AI responses, and developer endpoints.
-        </p>
-      </div>
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
+      {/* Header Banner */}
+      <div className="relative rounded-3xl overflow-hidden border border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-card to-background p-6 md:p-8 shadow-xl">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-border pb-3 overflow-x-auto">
-        <TabButton
-          active={activeTab === "account"}
-          onClick={() => setActiveTab("account")}
-          icon={<User className="w-4 h-4" />}
-          label="Account & Meta Token"
-        />
-        <TabButton
-          active={activeTab === "ai"}
-          onClick={() => setActiveTab("ai")}
-          icon={<Bot className="w-4 h-4" />}
-          label="AI Auto-Reply Engine"
-        />
-        <TabButton
-          active={activeTab === "webhook"}
-          onClick={() => setActiveTab("webhook")}
-          icon={<Server className="w-4 h-4" />}
-          label="Webhook & Endpoints"
-        />
-        <TabButton
-          active={activeTab === "support"}
-          onClick={() => setActiveTab("support")}
-          icon={<MessageCircle className="w-4 h-4" />}
-          label="WhatsApp Support"
-        />
-      </div>
-
-      {/* TAB 1: Account */}
-      {activeTab === "account" && (
-        <div className="space-y-6">
-          <Card className="p-6 bg-card border-border shadow-sm space-y-6">
-            <div>
-              <h3 className="font-serif-display text-2xl text-foreground">Connected Instagram Account</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Your active Instagram Business session authorized via Meta Graph API.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-muted/20 border border-border space-y-1">
-                <p className="text-[11px] text-muted-foreground font-mono-ui uppercase">Instagram Username</p>
-                <p className="text-base font-bold text-foreground flex items-center gap-2">
-                  <span>{displayUser}</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-ui bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    Active
-                  </span>
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-muted/20 border border-border space-y-1">
-                <p className="text-[11px] text-muted-foreground font-mono-ui uppercase">Meta User ID</p>
-                <p className="text-sm font-mono-ui font-semibold text-foreground">{userId || "Not connected"}</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-muted/20 border border-border space-y-1">
-                <p className="text-[11px] text-muted-foreground font-mono-ui uppercase">Token Health</p>
-                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" /> 60-Day Long Lived Token Active
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-muted/20 border border-border space-y-1">
-                <p className="text-[11px] text-muted-foreground font-mono-ui uppercase">Platform Permissions</p>
-                <p className="text-xs font-medium text-foreground">Messages, Comments, Webhooks, Profile</p>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <p className="text-xs font-semibold text-foreground">Refresh Instagram Session</p>
-                <p className="text-[11px] text-muted-foreground">Re-authorize with Meta if you updated password or page access.</p>
-              </div>
-              <button
-                onClick={() => {
-                  window.location.href = "/api/instagram/auth"
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border text-xs font-semibold text-foreground hover:bg-muted transition-all shadow-sm"
-              >
-                <RefreshCw className="w-3.5 h-3.5 text-amber-500" />
-                <span>Reconnect Instagram</span>
-              </button>
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* TAB 2: AI Settings */}
-      {activeTab === "ai" && (
-        <div className="space-y-6">
-          <Card className="p-6 bg-card border-border shadow-sm space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-serif-display text-2xl text-foreground flex items-center gap-2">
-                  <Bot className="w-6 h-6 text-purple-500" /> Autonomous AI Auto-Reply
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Powered by Groq Llama-3.1 to answer customer DMs when no keyword automation matches.
-                </p>
-              </div>
-              <button
-                onClick={() => handleToggleGroq(!groqEnabled)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  groqEnabled ? "bg-amber-500" : "bg-muted border border-border"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    groqEnabled ? "translate-x-6" : "translate-x-1"
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Built-in Status Notice */}
-            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-              <div className="text-xs">
-                <p className="font-bold text-foreground">Built-in Groq AI Engine Active & Ready</p>
-                <p className="text-muted-foreground">
-                  The server already has high-speed Groq LPU configured. You simply need to toggle the switch ON above!
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <Key className="w-3.5 h-3.5 text-amber-500" /> Custom Groq API Key (Optional)
-                  </span>
-                  <span className="text-[10px] font-mono-ui text-emerald-600 dark:text-emerald-400">Default Server Key Connected</span>
-                </label>
-                <input
-                  type="password"
-                  value={groqApiKey}
-                  onChange={(e) => setGroqApiKey(e.target.value)}
-                  placeholder="Using default server key (or paste custom gsk_...)"
-                  className="w-full h-10 bg-card border border-border rounded-xl px-3.5 text-xs text-foreground font-mono-ui focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">AI Intelligence Model</label>
-                <select
-                  value={aiModel}
-                  onChange={(e) => setAiModel(e.target.value)}
-                  className="w-full h-10 bg-card text-foreground border border-border rounded-xl px-3 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-                >
-                  <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant (Ultra Fast, Recommended)</option>
-                  <option value="llama-3.3-70b-versatile">Llama 3.3 70B Versatile (Deep Reasoning)</option>
-                  <option value="mixtral-8x7b-32768">Mixtral 8x7B (Multi-lingual)</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">Business Persona & Context Knowledge</label>
-                <textarea
-                  value={aiContext}
-                  onChange={(e) => setAiContext(e.target.value)}
-                  rows={4}
-                  placeholder="Describe your brand, services, pricing, WhatsApp contact, or FAQ instructions. The AI will use this knowledge base to answer incoming DMs naturally."
-                  className="w-full bg-card border border-border rounded-xl p-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-                />
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border flex items-center justify-between">
-              {aiSaved && (
-                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" /> AI configuration saved successfully!
-                </span>
-              )}
-              <button
-                onClick={handleSaveAiSettings}
-                disabled={savingAi}
-                className="ml-auto flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-300 text-slate-950 font-mono-ui text-xs font-bold px-5 py-2.5 rounded-xl hover:shadow-md transition-all disabled:opacity-50"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>{savingAi ? "Saving..." : "Save AI Settings"}</span>
-              </button>
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* TAB 3: Webhook */}
-      {activeTab === "webhook" && (
-        <div className="space-y-6">
-          <Card className="p-6 bg-card border-border shadow-sm space-y-6">
-            <div>
-              <h3 className="font-serif-display text-2xl text-foreground">Meta Webhook Configuration</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Use these values in Meta Developer App ➔ Instagram ➔ Webhook setup.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-muted/20 border border-border space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-foreground">Callback URL</label>
-                  <button
-                    onClick={() => copyToClipboard(webhookUrl, "url")}
-                    className="flex items-center gap-1 text-[11px] font-mono-ui text-amber-600 dark:text-amber-400 hover:underline"
-                  >
-                    {copiedUrl ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedUrl ? "Copied!" : "Copy URL"}</span>
-                  </button>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+          <div className="flex items-center gap-5">
+            {/* Avatar */}
+            <div className="relative group">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-[2.5px] shadow-lg shadow-amber-500/10">
+                <div className="w-full h-full rounded-[14px] bg-background flex items-center justify-center overflow-hidden">
+                  {profile?.profile_picture_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={profile.profile_picture_url}
+                      alt={currentUsername}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-2xl md:text-3xl font-extrabold text-foreground">
+                      {currentUsername.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
-                <code className="block p-2.5 rounded-xl bg-card border border-border text-xs font-mono-ui text-foreground select-all break-all">
-                  {webhookUrl}
-                </code>
               </div>
-
-              <div className="p-4 rounded-2xl bg-muted/20 border border-border space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-foreground">Verify Token</label>
-                  <button
-                    onClick={() => copyToClipboard(verifyToken, "token")}
-                    className="flex items-center gap-1 text-[11px] font-mono-ui text-amber-600 dark:text-amber-400 hover:underline"
-                  >
-                    {copiedToken ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedToken ? "Copied!" : "Copy Token"}</span>
-                  </button>
-                </div>
-                <code className="block p-2.5 rounded-xl bg-card border border-border text-xs font-mono-ui text-foreground select-all">
-                  {verifyToken}
-                </code>
+              <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full border-2 border-background shadow-sm" title="Connected">
+                <ShieldCheck className="w-3.5 h-3.5" />
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl border border-blue-500/20 bg-blue-500/5 space-y-2">
-              <p className="text-xs font-bold text-foreground flex items-center gap-2">
-                <Globe className="w-4 h-4 text-blue-500" /> Subscribed Webhook Fields:
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Ensure <code className="text-foreground font-mono-ui bg-muted px-1.5 py-0.5 rounded">messages</code>,{" "}
-                <code className="text-foreground font-mono-ui bg-muted px-1.5 py-0.5 rounded">messaging_postbacks</code>, and{" "}
-                <code className="text-foreground font-mono-ui bg-muted px-1.5 py-0.5 rounded">comments</code> are checked in your Meta Developer App.
-              </p>
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* TAB 4: Support */}
-      {activeTab === "support" && (
-        <div className="space-y-6">
-          <Card className="p-6 bg-card border-border shadow-sm space-y-6 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-500">
-              <MessageCircle className="w-8 h-8" />
-            </div>
-
+            {/* User details */}
             <div className="space-y-1">
-              <h3 className="font-serif-display text-3xl text-foreground">Dedicated WhatsApp Support</h3>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                Need assistance setting up automations, Meta App Review, or custom workflows? Connect directly with our developer team.
-              </p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{displayName}</h1>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  Active
+                </span>
+              </div>
+              <p className="text-sm font-medium text-amber-500 dark:text-amber-400">@{currentUsername}</p>
+              <p className="text-xs text-muted-foreground">Instagram ID: <span className="font-mono">{userId || "N/A"}</span></p>
             </div>
+          </div>
 
-            <div className="p-4 rounded-2xl bg-muted/20 border border-border max-w-md mx-auto space-y-1">
-              <p className="text-[11px] text-muted-foreground font-mono-ui uppercase">Official Support Number</p>
-              <p className="text-xl font-bold text-foreground font-mono-ui tracking-wider">+91 9118016507</p>
-            </div>
-
+          {/* Quick Actions */}
+          <div className="flex items-center gap-2.5 w-full md:w-auto">
+            <Button
+              onClick={() => fetchProfileData(true)}
+              disabled={refreshing}
+              variant="outline"
+              size="sm"
+              className="h-10 px-4 rounded-xl border-border hover:bg-card text-foreground"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
             <a
-              href={`https://wa.me/919118016507?text=${encodeURIComponent(
-                `Hi ShinePro Support, I need help with my account (Instagram: @${username || "creator"})`
-              )}`}
+              href={`https://instagram.com/${currentUsername}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs font-mono-ui px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-105"
+              className="inline-flex items-center justify-center h-10 px-4 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 hover:opacity-90 active:scale-95 transition-all shadow-sm"
             >
-              <MessageCircle className="w-4 h-4" />
-              <span>Chat on WhatsApp Now</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <Instagram className="w-3.5 h-3.5 mr-2" />
+              View Profile
+              <ExternalLink className="w-3 h-3 ml-1.5 opacity-70" />
             </a>
-          </Card>
+          </div>
         </div>
-      )}
-    </div>
-  )
-}
+      </div>
 
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-        active
-          ? "bg-amber-500 text-slate-950 shadow-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
+      {/* Profile Metrics Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-xs font-semibold">Followers</span>
+            <Users className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {profile?.followers_count !== null && profile?.followers_count !== undefined
+              ? Number(profile.followers_count).toLocaleString()
+              : "Live"}
+          </p>
+          <p className="text-[11px] text-muted-foreground">Audience Base</p>
+        </div>
+
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-xs font-semibold">Following</span>
+            <UserCheck className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {profile?.follows_count !== null && profile?.follows_count !== undefined
+              ? Number(profile.follows_count).toLocaleString()
+              : "Connected"}
+          </p>
+          <p className="text-[11px] text-muted-foreground">Accounts Followed</p>
+        </div>
+
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-xs font-semibold">Media & Reels</span>
+            <Film className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {Number(profile?.media_count || 0).toLocaleString()}
+          </p>
+          <p className="text-[11px] text-muted-foreground">Total Published Posts</p>
+        </div>
+
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-sm space-y-2">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-xs font-semibold">Active Automations</span>
+            <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {profile?.total_automations || 0}
+          </p>
+          <p className="text-[11px] text-muted-foreground">Live Funnels</p>
+        </div>
+      </div>
+
+      {/* Account Details & Support Card */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="p-6 rounded-2xl border border-border bg-card space-y-4">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-border">
+            <User className="w-4.5 h-4.5 text-amber-500 dark:text-amber-400" />
+            <h3 className="font-semibold text-foreground text-sm">Account Specification</h3>
+          </div>
+          <div className="space-y-3 text-xs">
+            <div className="flex justify-between py-1.5 border-b border-border/50">
+              <span className="text-muted-foreground">Account Type</span>
+              <span className="font-semibold text-foreground">{profile?.account_type || "Professional / Business"}</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-border/50">
+              <span className="text-muted-foreground">Instagram User ID</span>
+              <span className="font-mono text-foreground">{userId || "N/A"}</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-border/50">
+              <span className="text-muted-foreground">AI Auto-Reply Engine</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                {profile?.groq_auto_reply_enabled ? "Enabled (Groq AI)" : "Ready"}
+              </span>
+            </div>
+            <div className="flex justify-between py-1.5">
+              <span className="text-muted-foreground">Webhook Verification</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Verified & Active</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 rounded-2xl border border-border bg-card flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 pb-3 border-b border-border">
+              <MessageCircle className="w-4.5 h-4.5 text-emerald-500" />
+              <h3 className="font-semibold text-foreground text-sm">Direct Support & Help</h3>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Need assistance with your automations, webhook setup, or custom funnels? Connect directly with our priority support team on WhatsApp.
+            </p>
+          </div>
+
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 active:scale-98 transition-all"
+          >
+            <MessageCircle className="w-4 h-4 fill-white" />
+            Contact WhatsApp Support (9118016507)
+          </a>
+        </div>
+      </div>
+    </div>
   )
 }

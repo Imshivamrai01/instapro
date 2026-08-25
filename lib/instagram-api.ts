@@ -76,12 +76,16 @@ export function buildFollowGateCard(params: {
   title?: string
   subtitle?: string
 }): IGCard {
+  const displayUser = params.username && !params.username.startsWith("user_") ? `@${params.username}` : "our page"
+  const defaultTitle = params.title || "Follow to Unlock ✨"
+  const defaultSubtitle = params.subtitle || `Please follow ${displayUser} to unlock your exclusive access!`
+
   return {
-    title: params.title ?? "Before you lose me",
-    subtitle: params.subtitle ?? `Follow @${params.username} to unlock this content!`,
+    title: defaultTitle,
+    subtitle: defaultSubtitle,
     buttons: [
-      { type: "web_url", url: `https://instagram.com/${params.username}`, title: "Follow" },
-      { type: "postback", title: "I Followed! ✅", payload: `UNLOCK_CONTENT_${params.ruleId}` },
+      { type: "web_url", url: `https://instagram.com/${params.username}`, title: "👉 Follow" },
+      { type: "postback", title: "I Followed! Unlock 🔓", payload: `UNLOCK_CONTENT_${params.ruleId}` },
     ],
   }
 }
