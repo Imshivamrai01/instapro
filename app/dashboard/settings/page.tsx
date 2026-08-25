@@ -45,11 +45,11 @@ export default function SettingsPage() {
   // Fetch current user settings
   useEffect(() => {
     if (!userId) return
-    fetch(`/api/user/settings?userId=${userId}`)
+    fetch(`/api/groq/auto-reply?userId=${userId}`)
       .then((r) => r.json())
       .then((data) => {
         if (data && !data.error) {
-          setGroqEnabled(!!data.groq_auto_reply_enabled)
+          setGroqEnabled(!!data.enabled)
           setAiContext(data.ai_context || "")
           setGroqApiKey(data.groq_api_key || "")
           if (data.ai_model) setAiModel(data.ai_model)
@@ -58,18 +58,40 @@ export default function SettingsPage() {
       .catch(() => {})
   }, [userId])
 
+  const handleToggleGroq = async (newVal: boolean) => {
+    setGroqEnabled(newVal)
+    if (!userId) return
+    try {
+      await fetch("/api/groq/auto-reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          enabled: newVal,
+          ai_context: aiContext,
+          groq_api_key: groqApiKey || null,
+          ai_model: aiModel,
+        }),
+      })
+      setAiSaved(true)
+      setTimeout(() => setAiSaved(false), 2500)
+    } catch (e) {
+      console.error("Failed to toggle AI state", e)
+    }
+  }
+
   const handleSaveAiSettings = async () => {
     if (!userId) return
     setSavingAi(true)
     setAiSaved(false)
     try {
-      const res = await fetch("/api/user/settings", {
+      const res = await fetch("/api/groq/auto-reply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
-          groq_auto_reply_enabled: groqEnabled,
-          groq_api_key: groqApiKey,
+          enabled: groqEnabled,
+          groq_api_key: groqApiKey || null,
           ai_context: aiContext,
           ai_model: aiModel,
         }),
@@ -213,7 +235,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <button
-                onClick={() => setGroqEnabled(!groqEnabled)}
+                onClick={() => handleToggleGroq(!groqEnabled)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                   groqEnabled ? "bg-amber-500" : "bg-muted border border-border"
                 }`}
@@ -226,19 +248,32 @@ export default function SettingsPage() {
               </button>
             </div>
 
+            {/* Built-in Status Notice */}
+            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+              <div className="text-xs">
+                <p className="font-bold text-foreground">Built-in Groq AI Engine Active & Ready</p>
+                <p className="text-muted-foreground">
+                  The server already has high-speed Groq LPU configured. You simply need to toggle the switch ON above!
+                </p>
+              </div>
+            </div>
+
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <Key className="w-3.5 h-3.5 text-amber-500" /> Groq API Key
+                <label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-amber-500" /> Custom Groq API Key (Optional)
+                  </span>
+                  <span className="text-[10px] font-mono-ui text-emerald-600 dark:text-emerald-400">Default Server Key Connected</span>
                 </label>
                 <input
                   type="password"
                   value={groqApiKey}
                   onChange={(e) => setGroqApiKey(e.target.value)}
-                  placeholder="gsk_..."
+                  placeholder="Using default server key (or paste custom gsk_...)"
                   className="w-full h-10 bg-card border border-border rounded-xl px-3.5 text-xs text-foreground font-mono-ui focus:outline-none focus:ring-2 focus:ring-amber-500/40"
                 />
-                <p className="text-[11px] text-muted-foreground">Free API key available at console.groq.com</p>
               </div>
 
               <div className="space-y-1.5">

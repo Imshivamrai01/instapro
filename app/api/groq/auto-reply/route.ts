@@ -37,5 +37,9 @@ export async function PUT(request: NextRequest) {
 
   const { error } = await supabase.from("users").update(update).eq("id", userId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, success: true })
+}
+
+export async function POST(request: NextRequest) {
+  return PUT(request)
 }
