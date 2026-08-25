@@ -90,8 +90,19 @@ export async function POST(request: NextRequest) {
       if (meData.user_id) {
         businessAccountId = meData.user_id.toString()
         console.log(`[v0] 🎯 Got IG Professional Account ID (user_id): ${businessAccountId}`)
-      } else {
-        console.warn(`[v0] ⚠️ /me did not return user_id, using loginUserId: ${loginUserId}`)
+      }
+
+      // If username still starts with user_, try direct node lookup
+      if (username.startsWith("user_") && (businessAccountId || loginUserId)) {
+        const idToTry = businessAccountId || loginUserId
+        const directRes = await fetch(
+          `https://graph.instagram.com/v24.0/${idToTry}?fields=username,name&access_token=${accessToken}`
+        )
+        const directData = await directRes.json()
+        if (directData.username) {
+          username = directData.username
+          console.log(`[v0] 🎯 Resolved username via direct node: ${username}`)
+        }
       }
     } catch (e) {
       console.error("[v0] /me request failed:", e)
